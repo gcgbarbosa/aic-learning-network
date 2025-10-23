@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 from .chatbot import ChatbotRecord
-from .message import MessageRecord
+from.message import MessageRecord
 
 
 class ChatbotInteractionRecord(BaseModel):
