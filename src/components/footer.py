@@ -3,17 +3,17 @@ from nicegui import ui
 from nicegui.elements.footer import Footer
 from nicegui.events import GenericEventArguments
 
+from src.components.chatbots_container import ChatbotsContainerComponent
+
 
 class FooterComponent:
-    def __init__(
-        self,
-    ):
+    def __init__(self, chatbot_container: ChatbotsContainerComponent):
         with ui.footer().classes("bg-white") as footer:
-            with ui.row().classes("items-center w-full max-w-3xl mx-auto p-2 shadow-xl"):
+            with ui.row().classes("items-center w-full max-w-3xl mx-auto  shadow-xl"):
                 text = ui.textarea(placeholder="Ask anything").props("outlined rows=4").classes("col-grow height-full")
 
                 button = ui.button(icon="send").props("push id='btn_send'")
-                button.on("click", lambda: ui.notify("Button clicked"))
+                button.on("click", self.send_user_prompt)
                 button.disable()
 
                 text.on(
@@ -22,14 +22,21 @@ class FooterComponent:
                 )
                 text.disable()
 
-                self.txt_input_chat = text
-                self.btn_input_chat = button
+                self._txt_input_chat = text
+                self._btn_input_chat = button
 
         self._element = footer
+
+        self._chatbot_container = chatbot_container
+
+        self.prevent_new_line_on_enter()
 
     @property
     def element(self) -> Footer:
         return self._element
+
+    async def send_user_prompt(self):
+        await self._chatbot_container.process_user_prompt(self._txt_input_chat, self._btn_input_chat)
 
     async def handle_key_down(
         self,
@@ -39,4 +46,14 @@ class FooterComponent:
             logger.info("User pressed shift+enter")
         elif e.args.get("key") == "Enter":
             ui.notify("Enter pressed")
-            # await self.message_controller.add_message(self.txt_input_chat, self.btn_input_chat)
+            # await self._chatbot_container.process_user_prompt(self._txt_input_chat, self._btn_input_chat)
+            await self.send_user_prompt()
+
+    def prevent_new_line_on_enter(self):
+        ui.run_javascript("""
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();  // stop newlines or form submissions
+                }
+            });
+        """)
