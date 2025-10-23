@@ -16,18 +16,19 @@ class PocketBaseDB:
             raise ValueError("POCKETBASE_URL environment variable is not set")
 
         # self.client = PocketBase(server)
-        admin_data = self.client.admins.auth_with_password("gcgbarbosa@gmail.com", ",ofX2(0/5t*P")
-        token = admin_data.token
 
         if email and password:
             self.client = PocketBase(server)
             self.client.collection("users").auth_with_password(email, password)
-
         elif token:
             auth = BaseAuthStore(base_token=token)
             self.client = PocketBase(server, auth_store=auth)
         else:
-            raise ValueError("Token or user & password must be provided")
+            self.client = PocketBase(server)
+            admin_data = self.client.admins.auth_with_password("gcgbarbosa@gmail.com", ",ofX2(0/5t*P")
+            token = admin_data.token
+
+            # raise ValueError("Token or user & password must be provided")
 
     def check_auth(self) -> bool:
         if self.client.auth_store.model:
