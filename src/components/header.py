@@ -1,4 +1,4 @@
-from nicegui import app, ui
+from nicegui import ui
 
 
 class HeaderComponent:

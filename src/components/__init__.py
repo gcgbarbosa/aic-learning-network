@@ -1,6 +1,7 @@
 from .header import HeaderComponent
-from .messages import MessagesComponent
+from .chatbots_container import ChatbotsContainerComponent
 from .footer import FooterComponent
+from .messages_container import MessagesContainerComponent
 
 
-__all__ = ["HeaderComponent", "MessagesComponent", "FooterComponent"]
+__all__ = ["HeaderComponent", "ChatbotsContainerComponent", "FooterComponent", "MessagesContainerComponent"]

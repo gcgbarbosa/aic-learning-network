@@ -1,5 +1,6 @@
 from loguru import logger
 from nicegui import ui
+from nicegui.elements.footer import Footer
 from nicegui.events import GenericEventArguments
 
 
@@ -7,7 +8,7 @@ class FooterComponent:
     def __init__(
         self,
     ):
-        with ui.footer().classes("bg-white"):
+        with ui.footer().classes("bg-white") as footer:
             with ui.row().classes("items-center w-full max-w-3xl mx-auto p-2 shadow-xl"):
                 text = ui.textarea(placeholder="Ask anything").props("outlined rows=4").classes("col-grow height-full")
 
@@ -23,6 +24,12 @@ class FooterComponent:
 
                 self.txt_input_chat = text
                 self.btn_input_chat = button
+
+        self._element = footer
+
+    @property
+    def element(self) -> Footer:
+        return self._element
 
     async def handle_key_down(
         self,
