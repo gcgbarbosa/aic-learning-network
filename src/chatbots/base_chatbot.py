@@ -1,0 +1,11 @@
+from typing import AsyncIterator, Protocol
+
+from pydantic_ai.messages import ModelMessage
+
+
+class BaseChabot(Protocol):
+    def stream_response(self, prompt: str) -> AsyncIterator[str]: ...
+
+    def set_history(self, history: list[ModelMessage]): ...
+
+    def get_system_prompt(self) -> str: ...
