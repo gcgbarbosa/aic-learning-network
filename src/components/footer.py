@@ -45,8 +45,6 @@ class FooterComponent:
         if e.args.get("shiftKey") and e.args.get("key") == "Enter":
             logger.info("User pressed shift+enter")
         elif e.args.get("key") == "Enter":
-            ui.notify("Enter pressed")
-            # await self._chatbot_container.process_user_prompt(self._txt_input_chat, self._btn_input_chat)
             await self.send_user_prompt()
 
     def prevent_new_line_on_enter(self):

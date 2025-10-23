@@ -3,7 +3,7 @@
 from loguru import logger
 from nicegui import ui
 
-from components import ChatbotsContainerComponent, FooterComponent, HeaderComponent
+from components import ChatbotsContainerComponent, FooterComponent, HeaderComponent, SettingsModalComponent
 
 from src.controllers import TimerModel
 
@@ -12,16 +12,6 @@ logger.info("Initializing AI-Cares application")
 
 @ui.page("/")
 def main():
-    """
-    Main function that prints a greeting message and returns the sum of 1 and 1.
-
-    This function outputs a simple greeting to the console and computes a basic arithmetic
-    operation.
-
-    Returns:
-        int: The result of the arithmetic operation (1 + 1), which is 2.
-    """
-
     TIME_PER_STEP = 5
     elapsed_time = 0
     timer_model = TimerModel(max(0, TIME_PER_STEP - elapsed_time))
@@ -33,8 +23,6 @@ def main():
     HeaderComponent(timer_model, timer)
 
     chat_container = ChatbotsContainerComponent()
-
-    # chat_container.get_message_container(3)
 
     footer = FooterComponent(chat_container)
 
@@ -59,7 +47,7 @@ def main():
 
     timer.callback = countdown
 
-    # timer.active = True
+    settings = SettingsModalComponent()
 
 
 if __name__ in {"__main__", "__mp_main__"}:
