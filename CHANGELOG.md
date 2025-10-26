@@ -9,8 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-## [0.0.1] - 2025-04-09
+## [0.0.1] - 2025-10-23
 
 ### Added
 
 - First release of the project
+- base chatbot
+- pocketbase
+- pocketbase access classes
+- models: chatbot, chatbot_interaction, message
+- components: footer, header, chatbots_container, messages_container
+- add timer
+- add time logic
+- add asyncronous message handling
