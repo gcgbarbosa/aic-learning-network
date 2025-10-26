@@ -4,11 +4,12 @@ from datetime import timedelta
 
 from nicegui.timer import Timer
 
+from src.components.settings_modal import SettingsModalComponent
 from src.controllers.timer import TimerModel
 
 
 class HeaderComponent:
-    def __init__(self, timer_model: TimerModel, timer: Timer):
+    def __init__(self, timer_model: TimerModel, timer: Timer, settings_component: SettingsModalComponent):
         # name = app.storage.user.get("name", "User")
         self._timer = timer
 
@@ -23,26 +24,26 @@ class HeaderComponent:
             self._start_btn.bind_visibility_from(timer_model, "remaining", backward=lambda v: v > 0)
 
             self._config_btn = (
-                ui.button(icon="settings", on_click=lambda: ui.notify("Config clicked"))
+                ui.button(icon="settings", on_click=lambda: settings_component.show())
                 .classes("outlined")
                 .props("outline color=white ")
             )
-            self._config_btn.bind_visibility_from(timer_model, "remaining", backward=lambda v: v > 0)
 
             ui.space()
 
-            ui.button(text="End conversation", on_click=lambda: ui.notify("End conversation"), icon="close").props(
+            ui.button(text="End conversation", on_click=lambda: timer_model.set_remaining_time(0), icon="close").props(
                 "outline color=white"
-            )
+            ).bind_visibility_from(timer_model, "remaining", backward=lambda v: v > 0)
 
     def toggle_timer(self):
         if self._timer.active:
             self._timer.deactivate()
-            self._start_btn.set_text("Pause conversation")
+            self._start_btn.set_text("Start conversation")
 
         else:
             self._timer.activate()
-            self._start_btn.set_text("Stop conversation")
+            self._config_btn.visible = False
+            self._start_btn.set_text("Pause conversation")
 
     def format_time_left(self, seconds: int) -> str:
         """Format countdown seconds into mm:ss string (skip hours)."""
