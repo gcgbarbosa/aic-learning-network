@@ -3,7 +3,13 @@
 from loguru import logger
 from nicegui import ui
 
-from components import ChatbotsContainerComponent, FooterComponent, HeaderComponent, SettingsModalComponent
+from components import (
+    ChatbotsContainerComponent,
+    FooterComponent,
+    HeaderComponent,
+    SettingsModalComponent,
+    FeedbackComponent,
+)
 
 from src.controllers import TimerModel
 
@@ -12,6 +18,8 @@ logger.info("Initializing AI-Cares application")
 
 @ui.page("/")
 def main():
+    ui.colors(secondary="#f58732", primary="#009ad4", accent="#5ab031")
+
     TIME_PER_STEP = 5
     elapsed_time = 0
     timer_model = TimerModel(max(0, TIME_PER_STEP - elapsed_time))
@@ -20,7 +28,9 @@ def main():
 
     ui.page_title("AI-Cares")
 
-    HeaderComponent(timer_model, timer)
+    settings_component = SettingsModalComponent()
+
+    HeaderComponent(timer_model, timer, settings_component)
 
     chat_container = ChatbotsContainerComponent()
 
@@ -41,13 +51,17 @@ def main():
         footer.element.hide()
 
         chat_container.element.classes.remove("absolute-full")
-        chat_container.element.classes.append("h-150")
+        chat_container.element.classes.append("h-120")
+
+        FeedbackComponent()
 
         ui.run_javascript("window.scrollTo(0, document.body.scrollHeight)")
 
     timer.callback = countdown
 
-    settings = SettingsModalComponent()
+    # footer.element.hide()
+    # chat_container.element.classes.remove("absolute-full")
+    # chat_container.element.classes.append("h-150")
 
 
 if __name__ in {"__main__", "__mp_main__"}:
