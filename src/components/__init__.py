@@ -3,6 +3,7 @@ from .chatbots_container import ChatbotsContainerComponent
 from .footer import FooterComponent
 from .messages_container import MessagesContainerComponent
 from .settings_modal import SettingsModalComponent
+from .feedback import FeedbackComponent
 
 
 __all__ = [
@@ -11,4 +12,5 @@ __all__ = [
     "FooterComponent",
     "MessagesContainerComponent",
     "SettingsModalComponent",
+    "FeedbackComponent",
 ]
