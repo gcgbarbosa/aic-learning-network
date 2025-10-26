@@ -6,3 +6,6 @@ class TimerModel:
 
     def __init__(self, start_value: int):
         self.remaining = start_value
+
+    def set_remaining_time(self, value: int):
+        self.remaining = value
