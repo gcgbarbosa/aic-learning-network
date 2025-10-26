@@ -9,7 +9,7 @@ from src.components.chatbots_container import ChatbotsContainerComponent
 class FooterComponent:
     def __init__(self, chatbot_container: ChatbotsContainerComponent):
         with ui.footer().classes("bg-white") as footer:
-            with ui.row().classes("items-center w-full max-w-3xl mx-auto  shadow-xl"):
+            with ui.row().classes("items-center w-full max-w-3xl mx-auto  shadow-xl p-1 rounded-md"):
                 text = ui.textarea(placeholder="Ask anything").props("outlined rows=4").classes("col-grow height-full")
 
                 button = ui.button(icon="send").props("push id='btn_send'")
@@ -29,7 +29,7 @@ class FooterComponent:
 
         self._chatbot_container = chatbot_container
 
-        self.prevent_new_line_on_enter()
+        # self.prevent_new_line_on_enter()
 
     @property
     def element(self) -> Footer:
