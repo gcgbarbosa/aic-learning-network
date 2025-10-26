@@ -35,7 +35,7 @@ class MessagesContainerComponent:
         # messages = self.messages[:n]
         messages = []
 
-        with ui.scroll_area().classes("h-full border border-gray-300") as scroll_area:
+        with ui.scroll_area().classes("h-full border border-gray-300 rounded-sm") as scroll_area:
             with ui.element("div").classes("w-full") as message_container:
                 ui.chat_message("Hello, I am here to assist you!", name="Assistant", avatar=ASSISTANT_AVATAR)
 
