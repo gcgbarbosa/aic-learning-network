@@ -130,18 +130,25 @@ class PocketBaseDB:
     def update_chatbot_interaction(self, interaction_id: str, *, is_finished: bool) -> ChatbotInteractionRecord: ...
     @overload
     def update_chatbot_interaction(self, interaction_id: str, *, elapsed_time: int) -> ChatbotInteractionRecord: ...
+    @overload
+    def update_chatbot_interaction(
+        self, interaction_id: str, *, interaction_settings_id: str
+    ) -> ChatbotInteractionRecord: ...
 
     def update_chatbot_interaction(
         self,
         interaction_id: str,
         is_finished: bool | None = None,
         elapsed_time: int | None = None,
+        interaction_settings_id: str | None = None,
     ) -> ChatbotInteractionRecord:
         params: dict = {}
         if is_finished is not None:
             params["is_finished"] = is_finished
         if elapsed_time is not None:
             params["elapsed_time"] = elapsed_time
+        if interaction_settings_id is not None:
+            params["interaction_settings_id"] = interaction_settings_id
 
         interaction_record = self.client.collection("chatbot_interactions").update(
             id=interaction_id, body_params=params
