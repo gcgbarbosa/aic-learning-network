@@ -8,4 +8,5 @@ class MessageRecord(BaseModel):
     role: str = Field(..., description="Role of the sender (user, assistant, system)")
     content: str = Field(..., description="Message content")
     interaction_id: str = Field(..., description="Identifier of the related chatbot interaction")
+    chatbot_id: str = Field(..., description="Identifier of the chatbot that sent or received the message")
     timestamp: datetime = Field(..., description="Time when the message was created")

@@ -11,6 +11,7 @@ class ChatbotInteractionRecord(BaseModel):
 
     user_name: str = Field(..., description="The name of the person who took the test")
     session_id: str = Field(..., description="The session id the user chose")
+    interaction_settings_id: str = Field(..., description="Identifier for the related interaction settings")
 
     created: datetime = Field(..., description="Timestamp when the record was created")
     updated: datetime = Field(..., description="Timestamp when the record was updated")
