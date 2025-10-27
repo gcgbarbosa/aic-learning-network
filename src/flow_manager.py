@@ -117,6 +117,9 @@ class FlowManager:
 
         return interaction_settings, chatbot_settings_dict
 
+    def change_interaction_setting(self, interaction_settings_id: str):
+        self._db.update_chatbot_interaction(self._interaction_id, interaction_settings_id=interaction_settings_id)
+
     def save_user_message(self, content: str) -> None:
         logger.debug(f"Saving user message: {content}")
 
@@ -156,7 +159,5 @@ if __name__ == "__main__":
     # print(fm.get_all_messages())
 
     # print(fm.get_chatbot_01())
-    
 
     print(fm.get_interaction_and_chatbot_settings("default00000000"))
-
