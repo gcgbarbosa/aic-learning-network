@@ -38,7 +38,7 @@ def main():
 
     HeaderComponent(timer_model, timer, settings_component)
 
-    chat_container = ChatbotsContainerComponent()
+    chat_container = ChatbotsContainerComponent(flow_manager)
 
     footer = FooterComponent(chat_container)
 
