@@ -49,7 +49,7 @@ class MessagesContainerComponent:
 
         self._message_container = message_container
         self._scroll_area = scroll_area
-        self._agent = ChatbotFactory.get("pbgh7my1a58jpsw")
+        self._agent = ChatbotFactory.get("chatbot00000003")
 
     async def add_message(self, user_prompt: str):  # txt_input_chat: Textarea, btn_input_chat: Button) -> None:
         # message_content = txt_input_chat.value

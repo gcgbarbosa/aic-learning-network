@@ -7,6 +7,8 @@ from src.models import ChatbotRecord, ChatbotInteractionRecord, MessageRecord
 
 from typing import overload
 
+from loguru import logger
+
 
 class PocketBaseDB:
     def __init__(self, token: str | None = None, email: str | None = None, password: str | None = None):
@@ -18,12 +20,18 @@ class PocketBaseDB:
         # self.client = PocketBase(server)
 
         if email and password:
+            logger.info("Authenticating with provided email and password")
+
             self.client = PocketBase(server)
             self.client.collection("users").auth_with_password(email, password)
         elif token:
+            logger.info("Authenticating with provided token")
+
             auth = BaseAuthStore(base_token=token)
             self.client = PocketBase(server, auth_store=auth)
         else:
+            logger.info("Authenticating with admin credentials")
+
             self.client = PocketBase(server)
             admin_data = self.client.admins.auth_with_password("gcgbarbosa@gmail.com", ",ofX2(0/5t*P")
             token = admin_data.token
@@ -80,12 +88,9 @@ class PocketBaseDB:
         interaction_record = ChatbotInteractionRecord(
             id=interaction.id,
             elapsed_time=interaction.elapsed_time,  # type: ignore
-            position=interaction.position,  # type: ignore
             created=interaction.created,  # type: ignore
             updated=interaction.updated,  # type: ignore
-            user_id=interaction.user_id,  # type: ignore
             is_finished=interaction.is_finished,  # type: ignore
-            chatbot_id=interaction.chatbot_id,  # type: ignore
         )
 
         return interaction_record
@@ -108,69 +113,22 @@ class PocketBaseDB:
         )
 
     def get_chatbot_interaction(self, chatbot_interaction_id: str) -> ChatbotInteractionRecord:
-        interaction = self.client.collection("chatbot_interactions").get_one(
-            id=chatbot_interaction_id,
-            query_params={"expand": "messages_via_interaction_id, chatbot_id"},
-        )
+        interaction = self.client.collection("chatbot_interactions").get_one(chatbot_interaction_id)
 
-        message_records = []
-        for message in interaction.expand.get("messages_via_interaction_id", []):
-            message_record = MessageRecord(
-                id=message.id,
-                role=message.role,
-                content=message.content,
-                interaction_id=interaction.id,
-                timestamp=message.timestamp,
-            )
-            message_records.append(message_record)
-
-        chatbot = interaction.expand.get("chatbot_id", None)
-        chatbot_record = None
-        if chatbot is not None:
-            chatbot_record = ChatbotRecord(
-                id=chatbot.id,  # type.ignore
-                name=chatbot.name,  # type: ignore
-                created=chatbot.created,  # type: ignore
-                updated=chatbot.updated,  # type: ignore
-            )
-
-        interaction_record = ChatbotInteractionRecord(
+        interaction_obj = ChatbotInteractionRecord(
             id=interaction.id,
-            elapsed_time=interaction.elapsed_time,  # type: ignore
-            position=interaction.position,  # type: ignore
             created=interaction.created,  # type: ignore
             updated=interaction.updated,  # type: ignore
-            user_id=interaction.user_id,  # type: ignore
             is_finished=interaction.is_finished,  # type: ignore
-            chatbot_id=interaction.chatbot_id,  # type: ignore
-            messages=message_records,
-            chatbot=chatbot_record,
+            elapsed_time=interaction.elapsed_time,  # type: ignore
+            user_name=interaction.user_name,  # type: ignore
+            session_id=interaction.session_id,  # type: ignore
         )
 
-        return interaction_record
+        return interaction_obj
 
-    def list_chatbot_interactions(self, user_id: str) -> list[ChatbotInteractionRecord]:
-        user_data = self.client.collection("chatbot_interactions").get_full_list(
-            query_params={"filter": f'user_id = "{user_id}"'}
-        )
-
-        interaction_records = []
-
-        for interaction in user_data:
-            interaction = ChatbotInteractionRecord(
-                id=interaction.id,
-                elapsed_time=interaction.elapsed_time,  # type: ignore
-                position=interaction.position,  # type: ignore
-                created=interaction.created,  # type: ignore
-                updated=interaction.updated,  # type: ignore
-                user_id=interaction.user_id,  # type: ignore
-                chatbot_id=interaction.chatbot_id,  # type: ignore
-                is_finished=interaction.is_finished,  # type: ignore
-            )
-
-            interaction_records.append(interaction)
-
-        return interaction_records
+    def get_default_chatbot_interaction(self) -> ChatbotInteractionRecord:
+        return self.get_chatbot_interaction("default00000000")
 
     def list_chatbots(self) -> list[ChatbotRecord]:
         chatbots = self.client.collection("chatbots").get_full_list()
@@ -193,6 +151,12 @@ if __name__ == "__main__":
     # Create an instance of AuthManager
     db = PocketBaseDB()
 
+    default_interaction = db.get_default_chatbot_interaction()
+    print(default_interaction)
+
+    chatbots = db.list_chatbots()
+    print(chatbots)
+
     # interactions = db.list_chatbot_interactions("flyj221r8b3rfdf")
     # print(interactions)
 
@@ -202,8 +166,8 @@ if __name__ == "__main__":
     # interaction = db.create_chatbot_interaction("flyj221r8b3rfdf", "t4k57b5z9gxhaba", 2)
     # print(interaction)
 
-    interaction = db.get_chatbot_interaction("w986dg1gjzxqbw4")
-    print(interaction)
+    # interaction = db.get_chatbot_interaction("w986dg1gjzxqbw4")
+    # print(interaction)
 
     # message = db.insert_message("system", content="Hello", interaction_id="w986dg1gjzxqbw4")
     # print(message)
