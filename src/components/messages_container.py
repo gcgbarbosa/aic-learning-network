@@ -19,15 +19,12 @@ ASSISTANT_AVATAR = "https://robohash.org/robot"
 
 class MessagesContainerComponent:
     messages = [
-        MessageRecord(id="test", timestamp=time, interaction_id="", role="user", content="Hello, how are you?"),
-        MessageRecord(id="test", timestamp=time, interaction_id="", role="assistant", content="Hello, how are you?"),
-        MessageRecord(id="test", timestamp=time, interaction_id="", role="user", content="Hello, how are you?"),
-        MessageRecord(id="test", timestamp=time, interaction_id="", role="assistant", content="Hello, how are you?"),
-        MessageRecord(id="test", timestamp=time, interaction_id="", role="user", content="Hello, how are you?"),
-        MessageRecord(id="test", timestamp=time, interaction_id="", role="assistant", content="Hello, how are you?"),
-        MessageRecord(id="test", timestamp=time, interaction_id="", role="user", content="Hello, how are you?"),
-        MessageRecord(id="test", timestamp=time, interaction_id="", role="assistant", content="Hello, how are you?"),
-        MessageRecord(id="test", timestamp=time, interaction_id="", role="user", content="Hello, how are you?"),
+        MessageRecord(
+            id="test", timestamp=time, interaction_id="", role="user", content="Hello, how are you?", chatbot_id=""
+        ),
+        MessageRecord(
+            id="test", timestamp=time, interaction_id="", role="assistant", content="Hello, how are you?", chatbot_id=""
+        ),
     ]
 
     def __init__(self, agent: BaseChabot | None = None):
