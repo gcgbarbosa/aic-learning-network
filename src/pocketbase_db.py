@@ -160,7 +160,9 @@ class PocketBaseDB:
 
         return record_result
 
-    def insert_message(self, role: str, content: str, interaction_id: str, chatbot_id: str) -> MessageRecord:
+    def insert_message(
+        self, role: str, content: str, interaction_id: str, chatbot_id: str | None = None
+    ) -> MessageRecord:
         result = self.client.collection("messages").create(
             {
                 "role": role,
