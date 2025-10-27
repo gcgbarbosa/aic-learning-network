@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - pocketbase access classes
 - models: chatbot, chatbot_interaction, message
 - components: footer, header, chatbots_container, messages_container
-- add timer
-- add time logic
-- add asyncronous message handling
+- timer
+- timer logic
+- asyncronous message handling
+- flow module
+- database conection to frontend
