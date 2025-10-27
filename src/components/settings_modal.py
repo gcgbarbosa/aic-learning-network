@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Dict, List
 
 from loguru import logger
@@ -385,10 +386,33 @@ class SettingsModalComponent:
                     with ui.scroll_area().classes("w-full h-full"):
                         document_list = ui.list().props("separator").classes("m-0 w-full")
                         with document_list:
-                            with ui.item():
-                                with ui.item_section():
-                                    ui.item_label("No documents found")
+                            test_list = []
+                            if not test_list:
+                                with ui.item():
+                                    with ui.item_section():
+                                        ui.item_label("No documents found")
+                            else:
+                                for _ in test_list:
+                                    item = ui.item(
+                                        # on_click=lambda d=doc, did=doc_id: toggle_file_selection(did, d.file_name, selected_items.get(did))  # type: ignore
+                                        on_click=lambda: ui.notify("clicked")
+                                    ).classes("w-full")
 
+                                    with item:
+                                        with ui.item_section().props("avatar"):
+                                            ui.icon("picture_as_pdf").classes("text-red")
+
+                                        with ui.item_section():
+                                            ui.item_label("file.pdf")
+                                            status = "test"
+                                            total_chunks = 10
+                                            upload_date = datetime.now()
+                                            print(upload_date)
+
+                                            ui.item_label(f"{status} • {total_chunks} chunks").props("caption")
+                                            # ui.item_label(
+                                            #     f"Uploaded: {upload_date.strftime('%Y-%m-%d %H:%M')}"
+                                            # ).props("caption")
             # Remove extra padding around scroll content for a tighter look
             ui.query(".q-scrollarea__content").style("padding: 0px")
         logger.debug("Chatbot settings card built for chatbot_id={}", chatbot_id)
