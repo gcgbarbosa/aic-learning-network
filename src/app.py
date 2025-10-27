@@ -11,7 +11,9 @@ from components import (
     FeedbackComponent,
 )
 
+from src.components.session_modal import SessionModalComponent
 from src.controllers import TimerModel
+from src.flow_manager import FlowManager
 
 logger.info("Initializing AI-Cares application")
 
@@ -19,6 +21,10 @@ logger.info("Initializing AI-Cares application")
 @ui.page("/")
 def main():
     ui.colors(secondary="#f58732", primary="#009ad4", accent="#5ab031")
+
+    flow_manager = FlowManager()
+
+    # SessionModalComponent(flow_manager)
 
     TIME_PER_STEP = 5
     elapsed_time = 0
