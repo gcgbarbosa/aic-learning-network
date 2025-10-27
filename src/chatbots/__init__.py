@@ -1,6 +1,7 @@
 from .base_chatbot import BaseChabot
 from .chatbot import Chatbot
 from .factory import ChatbotFactory
+from .message_adapter import MessageAdapter
 
 from src.pocketbase_db import PocketBaseDB
 
@@ -11,7 +12,7 @@ from src.pocketbase_db import PocketBaseDB
 #
 #
 # __all__ = ["BaseChabot", "FewshotChatbot", "RAGChatbot", "ZeroshotChatbot"]
-__all__ = ["BaseChabot", "Chatbot", "ChatbotFactory"]
+__all__ = ["BaseChabot", "Chatbot", "ChatbotFactory", "MessageAdapter"]
 
 
 db = PocketBaseDB()
