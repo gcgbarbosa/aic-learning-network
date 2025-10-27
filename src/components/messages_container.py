@@ -27,10 +27,9 @@ class MessagesContainerComponent:
         ),
     ]
 
-    def __init__(self, agent: BaseChabot | None = None):
-        n = random.randint(5, 10)  # random integer from 1 to 10
+    def __init__(self, agent: BaseChabot, messages: list[MessageRecord], fn):
+        # n = random.randint(5, 10)  # random integer from 1 to 10
         # messages = self.messages[:n]
-        messages = []
 
         with ui.scroll_area().classes("h-full border border-gray-300 rounded-sm") as scroll_area:
             with ui.element("div").classes("w-full") as message_container:
@@ -46,7 +45,9 @@ class MessagesContainerComponent:
 
         self._message_container = message_container
         self._scroll_area = scroll_area
-        self._agent = ChatbotFactory.get("chatbot00000003")
+        self._agent = agent
+
+        self._fn = fn
 
     async def add_message(self, user_prompt: str):  # txt_input_chat: Textarea, btn_input_chat: Button) -> None:
         # message_content = txt_input_chat.value
@@ -83,6 +84,8 @@ class MessagesContainerComponent:
                         self._scroll_area.scroll_to(percent=100)
 
                     logger.info(f"Message added to interaction: q:[{user_prompt}] -> a:[{content.content}]")
+
+                self._fn(content.content)
 
         except Exception as e:
             ui.notify(f"Error trying to generate a response: {e}")
