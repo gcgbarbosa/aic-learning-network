@@ -89,6 +89,8 @@ class SettingsModalComponent:
         self._save_btn.visible = False
         self._cancel_btn.visible = False
 
+        self._settings_input.enable()
+
         self._general_system_prompt_text_area.disable()
         for text_area in self._chatbot_prompt_text_area.values():
             text_area.disable()
@@ -109,13 +111,28 @@ class SettingsModalComponent:
                 {"chatbot_id": idx, "system_message": text_area.value},
             )
 
-        self._flow_manager.create_interaction_settings(
+        new_interaction_id = self._flow_manager.create_interaction_settings(
             name=name,
             system_prompt=system_prompt,
             chatbot_settings=chatbot_settings,
         )
 
+
+        self._flow_manager.change_interaction_setting(interaction_settings_id=new_interaction_id)
+
         self.update_prompt_values()
+
+
+        self._select_btn.visible = False
+
+        self._create_btn.visible = True
+        self._save_btn.visible = False
+        self._cancel_btn.visible = False
+
+        self._general_system_prompt_text_area.disable()
+        for text_area in self._chatbot_prompt_text_area.values():
+            text_area.disable()
+        self._settings_input.enable()
 
         ui.notify("Settings saved", color="positive")
 
@@ -142,8 +159,6 @@ class SettingsModalComponent:
 
         self._save_btn.visible = True
         self._cancel_btn.visible = True
-
-        ui.notify(self._new_settings_name.value)
 
     def handle_select_btn_click(self):
         selected_interaction = self._selected_interaction_setting

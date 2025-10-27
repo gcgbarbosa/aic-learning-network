@@ -132,10 +132,12 @@ class FlowManager:
             role="assistant", content=content, chatbot_id=chatbot_id, interaction_id=self._interaction_id
         )
 
-    def create_interaction_settings(self, name: str, system_prompt: str, chatbot_settings: list[dict]):
+    def create_interaction_settings(self, name: str, system_prompt: str, chatbot_settings: list[dict]) -> str:
         setting = self._db.create_interaction_settings(name, system_prompt, chatbot_settings)
 
         logger.info(f"Created interaction [{name}] settings with ID '{setting.id}'")
+
+        return setting.id
 
 
 if __name__ == "__main__":
