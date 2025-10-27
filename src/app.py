@@ -34,7 +34,8 @@ def main():
 
     ui.page_title("AI-Cares")
 
-    settings_component = SettingsModalComponent()
+    settings_component = SettingsModalComponent(flow_manager)
+    settings_component.show()
 
     HeaderComponent(timer_model, timer, settings_component)
 
@@ -42,6 +43,7 @@ def main():
 
     footer = FooterComponent(chat_container)
 
+    # TODO: remove after test
     footer._btn_input_chat.enable()
     footer._txt_input_chat.enable()
 
