@@ -11,6 +11,7 @@ from src.controllers.timer import TimerModel
 class HeaderComponent:
     def __init__(self, timer_model: TimerModel, timer: Timer, settings_component: SettingsModalComponent):
         # name = app.storage.user.get("name", "User")
+        
         self._timer = timer
 
         with ui.header().classes("items-center"):
@@ -31,9 +32,17 @@ class HeaderComponent:
 
             ui.space()
 
-            ui.button(text="End conversation", on_click=lambda: timer_model.set_remaining_time(0), icon="close").props(
-                "outline color=white"
-            ).bind_visibility_from(timer_model, "remaining", backward=lambda v: v > 0)
+            ui.button(
+                text="End conversation",
+                on_click=lambda: self.handle_end_conversation(timer_model=timer_model),
+                icon="close",
+            ).props("outline color=white").bind_visibility_from(timer_model, "remaining", backward=lambda v: v > 0)
+
+    def handle_end_conversation(self, timer_model: TimerModel):
+        if not self._timer.active:
+            self.toggle_timer()
+
+        timer_model.set_remaining_time(0)
 
     def toggle_timer(self):
         if self._timer.active:
