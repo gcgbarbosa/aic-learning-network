@@ -308,15 +308,6 @@ class PocketBaseDB:
             return []
 
     def list_messages_by_interaction(self, interaction_id: str) -> list[MessageRecord]:
-        """
-        List all messages from a specific interaction using expansions.
-
-        Args:
-            interaction_id: The ID of the chatbot interaction
-
-        Returns:
-            List of MessageRecord objects for the given interaction
-        """
         try:
             interaction_record = self.client.collection("chatbot_interactions").get_one(
                 interaction_id,
