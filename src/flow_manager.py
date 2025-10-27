@@ -1,6 +1,8 @@
 from src.chatbots.base_chatbot import BaseChabot
 from src.chatbots.factory import ChatbotFactory
+from src.chatbots.message_adapter import MessageAdapter
 from src.models.interaction_setting import InteractionSettingsRecord
+from src.models.message import MessageRecord
 from src.pocketbase_db import PocketBaseDB
 import os
 
@@ -9,64 +11,83 @@ from loguru import logger
 
 class FlowManager:
     def __init__(self):
-        self.db = PocketBaseDB()
+        self._db = PocketBaseDB()
 
         DEFAULT_SETTING_ID = os.getenv("DEFAULT_SETTING_ID")
         if DEFAULT_SETTING_ID is None:
             raise ValueError("DEFAULT_SETTING_ID environment variable is not set.")
-        self.default_setting_id = DEFAULT_SETTING_ID
+        self._default_setting_id = DEFAULT_SETTING_ID
 
         CHATBOT_IDS = os.getenv("CHATBOT_IDS")
         if CHATBOT_IDS is None:
             raise NotImplementedError("Multiple chatbot IDs are not supported yet.")
-        self.chatbot_ids = CHATBOT_IDS.split(",")
+        self._chatbot_ids = CHATBOT_IDS.split(",")
 
-        self.chatbots = {id: ChatbotFactory.get("chatbot00000003") for id in self.chatbot_ids}
+        self._chatbots = {id: ChatbotFactory.get("chatbot00000003") for id in self._chatbot_ids}
 
-        # TODO: load messages
+        self._interaction_id = "ttvxe4qk4erlw4a"
 
-        logger.info(f"Initialized FlowManager with chatbots: {self.chatbot_ids}")
+        self._all_messages = self.get_all_messages()
 
-    def get_chatbot_01(self) -> BaseChabot:
-        chatbot = self.chatbots.get(self.chatbot_ids[0])
+        self._chatbot_messages = {}
+
+        for id, chatbot in self._chatbots.items():
+            messages = [m for m in self._all_messages if m.chatbot_id == id or not m.chatbot_id]
+
+            adapted_messages = MessageAdapter.adapt_message_list(messages)
+
+            chatbot.set_history(adapted_messages)
+
+            self._chatbot_messages[id] = messages
+
+        logger.info(f"Initialized FlowManager with chatbots: {self._chatbot_ids}")
+
+    def get_all_messages(self) -> list[MessageRecord]:
+        return self._db.list_messages_by_interaction(self._interaction_id)
+
+    def get_chatbot_01(self) -> tuple[BaseChabot, list[MessageRecord]]:
+        chatbot = self._chatbots.get(self._chatbot_ids[0])
+        messages = self._chatbot_messages.get(self._chatbot_ids[0], [])
 
         if chatbot is None:
-            raise ValueError(f"Chatbot with ID '{self.chatbot_ids[0]}' not found.")
+            raise ValueError(f"Chatbot with ID '{self._chatbot_ids[0]}' not found.")
 
-        return chatbot
+        return chatbot, messages
 
     def get_chatbot_02(self):
-        chatbot = self.chatbots.get(self.chatbot_ids[1])
+        chatbot = self._chatbots.get(self._chatbot_ids[1])
+        messages = self._chatbot_messages.get(self._chatbot_ids[2], [])
 
         if chatbot is None:
-            raise ValueError(f"Chatbot with ID '{self.chatbot_ids[1]}' not found.")
+            raise ValueError(f"Chatbot with ID '{self._chatbot_ids[1]}' not found.")
 
-        return chatbot
+        return chatbot, messages
 
     def get_chatbot_03(self):
-        chatbot = self.chatbots.get(self.chatbot_ids[2])
+        chatbot = self._chatbots.get(self._chatbot_ids[2])
+        messages = self._chatbot_messages.get(self._chatbot_ids[2], [])
 
         if chatbot is None:
-            raise ValueError(f"Chatbot with ID '{self.chatbot_ids[2]}' not found.")
+            raise ValueError(f"Chatbot with ID '{self._chatbot_ids[2]}' not found.")
 
-        return chatbot
+        return chatbot, messages
 
     def create_interaction(self, user_name: str, session_id: str) -> None:
-        interactions = self.db.list_chatbot_interactions_by_session(session_id=session_id)
+        interactions = self._db.list_chatbot_interactions_by_session(session_id=session_id)
 
         if len(interactions) > 0:
             raise ValueError(f"An interaction for session_id '{session_id}' already exists.")
 
-        self.db.create_chatbot_interaction(user_name, session_id)
+        self._db.create_chatbot_interaction(user_name, session_id)
 
     def list_settings(self) -> list[InteractionSettingsRecord]:
-        return self.db.list_interaction_settings()
+        return self._db.list_interaction_settings()
 
     def get_default_setting(self) -> InteractionSettingsRecord:
-        setting = self.db.get_interaction_setting(self.default_setting_id)
+        setting = self._db.get_interaction_setting(self._default_setting_id)
 
         if setting is None:
-            raise ValueError(f"Interaction setting with ID '{self.default_setting_id}' not found.")
+            raise ValueError(f"Interaction setting with ID '{self._default_setting_id}' not found.")
 
         return setting
 
@@ -75,7 +96,10 @@ if __name__ == "__main__":
     # Create an instance of AuthManager
     fm = FlowManager()
 
-    settings = fm.list_settings()
-    # print(settings)
+    print(fm.list_settings())
 
-    print(fm.get_default_setting())
+    # print(fm.get_default_setting())
+
+    # print(fm.get_all_messages())
+
+    # print(fm.get_chatbot_01())
