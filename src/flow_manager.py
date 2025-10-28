@@ -33,17 +33,35 @@ class FlowManager:
 
         self._chatbot_messages = {}
 
+        self.initialize_chatbots()
+
+        logger.info(f"Initialized FlowManager with chatbots: {self._chatbot_ids}")
+
+    def initialize_chatbots(self):
+        self._interaction = self.get_interaction()
+        self._interaction_settings, self._chatbot_settings_dict = self.get_interaction_and_chatbot_settings(
+            self._interaction.interaction_settings_id
+        )
+
         for id, chatbot in self._chatbots.items():
             messages = [m for m in self._all_messages if m.chatbot_id == id or not m.chatbot_id]
 
-            adapted_messages = MessageAdapter.adapt_message_list(messages)
+            chatbot_setting = self._chatbot_settings_dict.get(id)
+            if chatbot_setting is None:
+                chatbot_system_message = ""
+            else:
+                chatbot_system_message = chatbot_setting.system_message
+
+            system_message = self._interaction_settings.system_prompt + "\n\n" + chatbot_system_message
+
+            adapted_messages = MessageAdapter.adapt_message_list(messages, system_message)
 
             chatbot.set_history(adapted_messages)
+            chatbot.set_system_prompt(system_message)
+
             logger.info(f"Set history for chatbot ID '{id}' with {len(adapted_messages)} messages.")
 
             self._chatbot_messages[id] = messages
-
-        logger.info(f"Initialized FlowManager with chatbots: {self._chatbot_ids}")
 
     def get_chatbot_ids(self) -> list[str]:
         return self._chatbot_ids
@@ -120,6 +138,8 @@ class FlowManager:
     def change_interaction_setting(self, interaction_settings_id: str):
         self._db.update_chatbot_interaction(self._interaction_id, interaction_settings_id=interaction_settings_id)
 
+        self.initialize_chatbots()
+
     def save_user_message(self, content: str) -> None:
         logger.debug(f"Saving user message: {content}")
 
@@ -132,12 +152,14 @@ class FlowManager:
             role="assistant", content=content, chatbot_id=chatbot_id, interaction_id=self._interaction_id
         )
 
-    def create_interaction_settings(self, name: str, system_prompt: str, chatbot_settings: list[dict]) -> str:
+    def create_interaction_settings(
+        self, name: str, system_prompt: str, chatbot_settings: list[dict]
+    ) -> InteractionSettingsRecord:
         setting = self._db.create_interaction_settings(name, system_prompt, chatbot_settings)
 
         logger.info(f"Created interaction [{name}] settings with ID '{setting.id}'")
 
-        return setting.id
+        return setting
 
 
 if __name__ == "__main__":
