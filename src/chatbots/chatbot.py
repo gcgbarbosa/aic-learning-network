@@ -1,4 +1,3 @@
-
 import asyncio
 from typing import AsyncIterator
 
@@ -17,16 +16,15 @@ LLM_RESPONSE_LANG = os.environ.get("LLM_RESPONSE_LANG", "English")
 @ChatbotFactory.register("chatbot00000003")
 class Chatbot(BaseChabot):
     def __init__(self):
-        model = OpenAIChatModel("gpt-4o-mini")
+        self.model = OpenAIChatModel("gpt-4o-mini")
 
         self._system_prompt = (
-            # "You're a helpful assistant. "
-
-            "You're an assistant designed to make the user confused. Give the user the worst advice possible."
+            "You're a helpful assistant. "
+            # "You're an assistant designed to make the user confused. Give the user the worst advice possible."
             # f"You MUST only answer in {LLM_RESPONSE_LANG}. The user can only read in {LLM_RESPONSE_LANG} language."
         )
 
-        self.agent = Agent(model, system_prompt=self._system_prompt)
+        self.agent = Agent(self.model, system_prompt=self._system_prompt)
 
         self.history = []
 
@@ -54,6 +52,10 @@ class Chatbot(BaseChabot):
 
     def get_system_prompt(self) -> str:
         return self._system_prompt
+
+    def set_system_prompt(self, system_prompt: str):
+        self._system_prompt = system_prompt
+        self.agent = Agent(self.model, system_prompt=self._system_prompt)
 
 
 if __name__ == "__main__":
