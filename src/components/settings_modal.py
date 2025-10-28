@@ -174,14 +174,14 @@ class SettingsModalComponent:
 
         logger.info("Saving new settings '{}'", new_setting_name)
         try:
-            new_interaction_id = self._flow_manager.create_interaction_settings(
+            new_interaction = self._flow_manager.create_interaction_settings(
                 name=new_setting_name,
                 system_prompt=general_prompt_text,
                 chatbot_settings=chatbot_settings_payload,
             )
-            logger.debug("Created settings id {}", new_interaction_id)
+            logger.debug("Created settings id {}", new_interaction.id)
 
-            self._flow_manager.change_interaction_setting(interaction_settings_id=new_interaction_id)
+            self._flow_manager.change_interaction_setting(interaction_settings_id=new_interaction.id)
             logger.info("Switched active interaction to '{}'", new_setting_name)
 
             self._pull_prompts_from_ui()  # keep model in sync with UI
@@ -191,6 +191,10 @@ class SettingsModalComponent:
 
             # Refresh local list (WHY: keep dropdown and cache consistent with backend)
             self._refresh_settings_options()
+
+            self._current_interaction_setting = new_interaction
+            self._selected_interaction_setting_name = new_setting_name
+            self._new_setting_name_input.value = ""
 
             self._notify_ok("Settings saved")
         except Exception as exc:
@@ -413,8 +417,10 @@ class SettingsModalComponent:
                                             # ui.item_label(
                                             #     f"Uploaded: {upload_date.strftime('%Y-%m-%d %H:%M')}"
                                             # ).props("caption")
+
             # Remove extra padding around scroll content for a tighter look
             ui.query(".q-scrollarea__content").style("padding: 0px")
+
         logger.debug("Chatbot settings card built for chatbot_id={}", chatbot_id)
 
     # -------------------------------------------------------------------------
