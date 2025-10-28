@@ -1,13 +1,10 @@
-import random
 from datetime import datetime, timezone
 
 from html_sanitizer import Sanitizer
 from loguru import logger
 from nicegui import ui
-from nicegui.elements.button import Button
-from nicegui.elements.textarea import Textarea
 
-from src.chatbots import BaseChabot, ChatbotFactory
+from src.chatbots import BaseChabot
 from src.models import MessageRecord
 
 time = datetime.now(tz=timezone.utc)
@@ -32,7 +29,7 @@ class MessagesContainerComponent:
         # messages = self.messages[:n]
 
         with ui.scroll_area().classes("h-full border border-gray-300 rounded-sm") as scroll_area:
-            with ui.element("div").classes("w-full") as message_container:
+            with ui.element("div").classes("w-full pr-4") as message_container:
                 ui.chat_message("Hello, I am here to assist you!", name="Assistant", avatar=ASSISTANT_AVATAR)
 
                 for message in messages:
