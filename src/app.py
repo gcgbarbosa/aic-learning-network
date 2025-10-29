@@ -35,7 +35,7 @@ def main():
     ui.page_title("AI-Cares")
 
     settings_component = SettingsModalComponent(flow_manager)
-    settings_component.show()
+    # settings_component.show()
 
     HeaderComponent(timer_model, timer, settings_component)
 
@@ -56,14 +56,14 @@ def main():
 
         timer.active = False
 
-        footer.element.hide()
+    footer.element.hide()
 
-        chat_container.element.classes.remove("absolute-full")
-        chat_container.element.classes.append("h-120")
+    chat_container.element.classes.remove("absolute-full")
+    chat_container.element.classes.append("h-120")
 
-        FeedbackComponent()
+    FeedbackComponent()
 
-        ui.run_javascript("window.scrollTo(0, document.body.scrollHeight)")
+    ui.run_javascript("window.scrollTo(0, document.body.scrollHeight)")
 
     timer.callback = countdown
 
