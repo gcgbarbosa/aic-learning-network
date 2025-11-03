@@ -15,6 +15,8 @@ from typing import overload
 
 from loguru import logger
 
+from src.models.feedback import FeedbackRecord
+
 
 class PocketBaseDB:
     def __init__(self, token: str | None = None, email: str | None = None, password: str | None = None):
@@ -345,6 +347,22 @@ class PocketBaseDB:
             logger.error(f"Error fetching messages for interaction {interaction_id}: {e}")
             return []
 
+    def create_feedback(self, interaction_id: str, feedback_text: str) -> FeedbackRecord:
+        result = self.client.collection("feedbacks").create(
+            {
+                "feedback": feedback_text,
+                "interaction_id": interaction_id,
+            }
+        )
+
+        return FeedbackRecord(
+            id=result.id,
+            interaction_id=result.interaction_id,  # type: ignore
+            feedback=result.feedback,  # type: ignore
+            created=result.created,  # type: ignore
+            updated=result.updated,  # type: ignore
+        )
+
 
 if __name__ == "__main__":
     # Create an instance of AuthManager
@@ -385,10 +403,12 @@ if __name__ == "__main__":
     # )
     # print(settings)
 
-    message = db.insert_message(
-        role="system", content="Hello", interaction_id="ttvxe4qk4erlw4a", chatbot_id="chatbot00000001"
-    )
+    # message = db.insert_message(
+    #     role="system", content="Hello", interaction_id="ttvxe4qk4erlw4a", chatbot_id="chatbot00000001"
+    # )
     # print(message)
 
     messages = db.list_messages_by_interaction("ttvxe4qk4erlw4a")
-    print(messages)
+    # print(messages)
+
+    feedback = db.create_feedback("ttvxe4qk4erlw4a", '{"hello": "world"}')
