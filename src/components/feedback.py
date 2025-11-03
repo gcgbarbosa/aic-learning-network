@@ -4,21 +4,23 @@ from nicegui.elements.row import Row
 
 class FeedbackComponent:
     def __init__(self):
+        self.error_signs = {}
+        self.error_box_classes = "border border-red-300 p-4 rounded-sm"
+
         with ui.row().classes("w-full") as row:
             with ui.column().classes("mx-4 p-8 w-full border border-gray-300 rounded-sm gap-5"):
                 ui.label("Feedback Survey").classes("text-lg font-bold")
 
-                # Central state
                 self.result = {
-                    # Ratings (0–5 allowed)
+                    # stars
                     "rate1": 0,
                     "rate2": 0,
                     "rate3": 0,
-                    # Single choice
+                    # select
                     "professional_preference": None,
                     "best_referral": None,
                     "seekers_preference": None,
-                    # Open text
+                    # open
                     "professional_reason": "",
                     "referral_timing": "",
                     "seekers_reason": "",
@@ -26,46 +28,60 @@ class FeedbackComponent:
                     "chat_snippet": "",
                 }
 
-                # A place to show validation errors
                 self.error_box = ui.column().classes("hidden")
 
-                # ------------------ Ratings ------------------
-                ui.label("Rating: hoeveel sterren geef je elk van de drie chatbots").classes("font-semibold")
-                ui.label("Kies voor elke chatbot 0 tot 5 sterren.").classes("text-xs text-gray-500")
+                with ui.element("div") as box:
+                    # ratings
+                    ui.label("Rating: hoeveel sterren geef je elk van de drie chatbots").classes("font-semibold")
+                    ui.label("Kies voor elke chatbot 0 tot 5 sterren.").classes("text-xs text-gray-500")
 
-                with ui.row().classes("items-center gap-8"):
-                    with ui.column().classes("gap-1"):
-                        ui.label("Chatbot #1").classes("text-sm font-medium")
-                        ui.rating(value=0, max=5, size="lg", icon="star", icon_selected="star").bind_value_to(
-                            self.result, "rate1"
-                        )
+                    with ui.row().classes("items-center gap-8"):
+                        with ui.column().classes("gap-1"):
+                            ui.label("Chatbot #1").classes("text-sm font-medium")
+                            ui.rating(value=0, max=5, size="lg", icon="star", icon_selected="star").bind_value_to(
+                                self.result, "rate1"
+                            ).on_value_change(self._check_errors)
 
-                    with ui.column().classes("gap-1"):
-                        ui.label("Chatbot #2").classes("text-sm font-medium")
-                        ui.rating(value=0, max=5, size="lg", icon="star", icon_selected="star").bind_value_to(
-                            self.result, "rate2"
-                        )
+                        with ui.column().classes("gap-1"):
+                            ui.label("Chatbot #2").classes("text-sm font-medium")
+                            ui.rating(value=0, max=5, size="lg", icon="star", icon_selected="star").bind_value_to(
+                                self.result, "rate2"
+                            ).on_value_change(self._check_errors)
 
-                    with ui.column().classes("gap-1"):
-                        ui.label("Chatbot #3").classes("text-sm font-medium")
-                        ui.rating(value=0, max=5, size="lg", icon="star", icon_selected="star").bind_value_to(
-                            self.result, "rate3"
-                        )
+                        with ui.column().classes("gap-1"):
+                            ui.label("Chatbot #3").classes("text-sm font-medium")
+                            ui.rating(value=0, max=5, size="lg", icon="star", icon_selected="star").bind_value_to(
+                                self.result, "rate3"
+                            ).on_value_change(self._check_errors)
 
+                    label = ui.label("Please select a star for each chatbot").classes("text-red-600 text-sm mt-4")
+                    label.visible = False
+
+                self.error_signs["ratings"] = (box, label)
+
+                # ratings.classes.clear()
                 ui.separator()
 
-                # ------------------ Professional preference ------------------
-                ui.label(
-                    "Welke van de chatbots heeft je voorkeur vanuit de positie van professional? (verplicht)"
-                ).classes("font-semibold")
-                ui.label("Kies precies één optie.").classes("text-xs text-gray-500")
+                # preferences
 
-                self.prof_pref = (
-                    ui.radio(options=["Chatbot 1", "Chatbot 2", "Chatbot 3", "weet niet"])
-                    .classes("w-full max-w-xl")
-                    .props("inline")
-                    .bind_value_to(self.result, "professional_preference")
-                )
+                with ui.element("div").classes() as box:
+                    ui.label(
+                        "Welke van de chatbots heeft je voorkeur vanuit de positie van professional? (verplicht)"
+                    ).classes("font-semibold")
+                    ui.label("Kies precies één optie.").classes("text-xs text-gray-500")
+
+                    self.prof_pref = (
+                        ui.radio(options=["Chatbot 1", "Chatbot 2", "Chatbot 3", "weet niet"])
+                        .classes("w-full max-w-xl")
+                        .props("inline")
+                        .bind_value_to(self.result, "professional_preference")
+                        .on_value_change(self._check_errors)
+                    )
+
+                    label = ui.label("Please select one option").classes("text-red-600 text-sm mt-4")
+                    label.visible = False
+
+                self.error_signs["professional_preference"] = (box, label)
 
                 ui.label(
                     "Wat maakt dat jij, als professional, deze chatbot verkiest? Leg uit waarom (verplicht)"
@@ -75,13 +91,13 @@ class FeedbackComponent:
                 self.prof_reason = (
                     ui.textarea(placeholder="Beschrijf je motivatie...")
                     .props("outlined autogrow counter maxlength=600 rows=3")
-                    .classes("w-full")
+                    .classes("w-full lg:w-2/3")
                     .bind_value_to(self.result, "professional_reason")
                 )
 
                 ui.separator()
 
-                # ------------------ Best referral to human help ------------------
+                # best
                 ui.label(
                     "Welke chatbot heeft het beste doorverwezen naar menselijke hulp volgens jou? (verplicht)"
                 ).classes("font-semibold")
@@ -105,13 +121,13 @@ class FeedbackComponent:
                 self.ref_timing = (
                     ui.textarea(placeholder="Beschrijf het ideale moment of de signalen...")
                     .props("outlined autogrow counter maxlength=600 rows=3")
-                    .classes("w-full")
+                    .classes("w-full lg:w-2/3")
                     .bind_value_to(self.result, "referral_timing")
                 )
 
                 ui.separator()
 
-                # ------------------ Seekers’ perspective ------------------
+                # seeker's perspective
                 ui.label(
                     "Vanuit het perspectief van hulpzoekers (zoals jongeren): welke chatbot zouden zij prefereren? "
                     "(verplicht)"
@@ -134,20 +150,20 @@ class FeedbackComponent:
                 self.seekers_reason = (
                     ui.textarea(placeholder="Leg je redenering uit...")
                     .props("outlined autogrow counter maxlength=600 rows=3")
-                    .classes("w-full")
+                    .classes("w-full lg:w-2/3")
                     .bind_value_to(self.result, "seekers_reason")
                 )
 
                 ui.separator()
 
-                # ------------------ Other remarks & snippet ------------------
+                # others
                 ui.label("Heb je nog andere bedenkingen of ideeën over deze chatgesprekken? (optioneel)").classes(
                     "font-semibold"
                 )
                 self.other = (
                     ui.textarea(placeholder="Andere opmerkingen...")
                     .props("outlined autogrow counter maxlength=600 rows=3")
-                    .classes("w-full")
+                    .classes("w-full lg:w-2/3")
                     .bind_value_to(self.result, "other_remarks")
                 )
 
@@ -158,18 +174,17 @@ class FeedbackComponent:
                 self.snippet = (
                     ui.textarea(placeholder="Plak hier een fragment en licht toe...")
                     .props("outlined autogrow counter maxlength=1200 rows=5")
-                    .classes("w-full")
+                    .classes("w-full lg:w-2/3")
                     .bind_value_to(self.result, "chat_snippet")
                 )
 
-                # ------------------ Actions ------------------
+                # buttons
                 with ui.row().classes("gap-3 mt-2"):
                     submit_button = ui.button("Verzend feedback", on_click=self._submit).classes("btn-primary")
                     ui.button("Leeg formulier", on_click=self._reset).props("flat")
 
         self._row = row
 
-    # ---------- Helpers ----------
     def _reset(self):
         # reset all fields
         self.result.update(
@@ -188,7 +203,8 @@ class FeedbackComponent:
             }
         )
         ui.notify("Formulier leeggemaakt.")
-        # re-render counters/values
+
+        # re-render
         for el in (
             self.prof_pref,
             self.best_ref,
@@ -201,41 +217,34 @@ class FeedbackComponent:
         ):
             el.update()
         # hide errors again
-        self._show_errors([])
+        # self._show_errors([])
+
+    def _show_errors(self, field: str):
+        self.error_signs[field][0].classes(remove=self.error_box_classes)
+        self.error_signs[field][1].visible = False
+
+    def _hide_errors(self, field: str):
+        self.error_signs[field][0].classes(remove=self.error_box_classes)
+        self.error_signs[field][1].visible = False
+
+    def _check_errors(self):
+        if self.result["rate1"] != 0 and self.result["rate2"] != 0 and self.result["rate3"] != 0:
+            self._hide_errors("ratings")
+
+        if self.result["professional_preference"] is not None:
+            self._hide_errors("professional_preference")
 
     def _submit(self):
-        errors = []
+        if self.result["rate1"] == 0 or self.result["rate2"] == 0 or self.result["rate3"] == 0:
+            self._show_errors("ratings")
 
-        # required single-choice
-        if not self.result["professional_preference"]:
-            errors.append("Kies je voorkeur als professional.")
-        if not self.result["best_referral"]:
-            errors.append("Kies welke chatbot het best doorverwees naar menselijke hulp.")
-        if not self.result["seekers_preference"]:
-            errors.append("Kies welke chatbot hulpzoekers zouden prefereren.")
+        if self.result["professional_preference"] is None:
+            self._show_errors("professional_preference")
 
-        # required open text (non-empty, min length)
-        def short(text: str) -> bool:
-            return len(text.strip()) >= 10  # minimal nuttige toelichting
-
-        if not short(self.result["professional_reason"]):
-            errors.append("Leg kort uit waarom je als professional deze chatbot verkiest (min. 10 tekens).")
-        if not short(self.result["referral_timing"]):
-            errors.append("Beschrijf wanneer best doorverwezen wordt (min. 10 tekens).")
-        if not short(self.result["seekers_reason"]):
-            errors.append("Leg uit waarom hulpzoekers deze chatbot zouden kiezen (min. 10 tekens).")
-
-        if errors:
-            self._show_errors(errors)
-            ui.notify("Controleer het formulier: sommige verplichte velden ontbreken.", type="warning")
-            return
-
-        # All good
-        self._show_errors([])
-        print("Feedback payload:", self.result)  # replace by persistence layer
+        ui.notify(self.result)
         ui.notify("Bedankt voor je feedback!", type="positive")
 
-    def _show_errors(self, messages: list[str]):
+    def _show_errors__(self, messages: list[str]):
         # Simple error list at the top; show/hide + render bullets
         self.error_box.clear()
         if messages:
