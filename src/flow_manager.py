@@ -161,6 +161,10 @@ class FlowManager:
 
         return setting
 
+    def submit_user_feedback(self, feedback_string: str):
+        self._db.create_feedback(self._interaction_id, feedback_string)
+        self._db.update_chatbot_interaction(self._interaction_id, is_finished=True)
+
 
 if __name__ == "__main__":
     # Create an instance of AuthManager

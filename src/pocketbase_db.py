@@ -347,10 +347,10 @@ class PocketBaseDB:
             logger.error(f"Error fetching messages for interaction {interaction_id}: {e}")
             return []
 
-    def create_feedback(self, interaction_id: str, feedback_text: str) -> FeedbackRecord:
+    def create_feedback(self, interaction_id: str, feedback_string: str) -> FeedbackRecord:
         result = self.client.collection("feedbacks").create(
             {
-                "feedback": feedback_text,
+                "feedback": feedback_string,
                 "interaction_id": interaction_id,
             }
         )

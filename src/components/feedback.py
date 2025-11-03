@@ -1,11 +1,17 @@
 from nicegui import ui
 from nicegui.elements.row import Row
 
+from src.flow_manager import FlowManager
+
+import json
+
 
 class FeedbackComponent:
-    def __init__(self):
-        self.error_signs = {}
-        self.error_box_classes = "border border-red-300 p-4 rounded-sm"
+    def __init__(self, flow_manager: FlowManager):
+        self._error_signs = {}
+        self._error_box_classes = "border border-red-300 p-4 rounded-sm"
+
+        self._flow_manager = flow_manager
 
         with ui.row().classes("w-full") as row:
             with ui.column().classes("mx-4 p-8 w-full border border-gray-300 rounded-sm gap-4"):
@@ -56,7 +62,7 @@ class FeedbackComponent:
                     label = ui.label("Please select a star for each chatbot").classes("text-red-600 text-sm mt-4")
                     label.visible = False
 
-                self.error_signs["ratings"] = (box, label)
+                self._error_signs["ratings"] = (box, label)
 
                 # ratings.classes.clear()
                 ui.separator()
@@ -79,7 +85,7 @@ class FeedbackComponent:
                     label = ui.label("Please select one option").classes("text-red-600 text-sm mt-4")
                     label.visible = False
 
-                self.error_signs["professional_preference"] = (box, label)
+                self._error_signs["professional_preference"] = (box, label)
 
                 with ui.element("div").classes("w-full lg:w-2/3") as box:
                     ui.label(
@@ -97,7 +103,7 @@ class FeedbackComponent:
                     label = ui.label("Please provide a reason").classes("text-red-600 text-sm mt-4")
                     label.visible = False
 
-                self.error_signs["professional_reason"] = (box, label)
+                self._error_signs["professional_reason"] = (box, label)
 
                 ui.separator()
 
@@ -118,7 +124,7 @@ class FeedbackComponent:
                     label = ui.label("Please select one option").classes("text-red-600 text-sm mt-4")
                     label.visible = False
 
-                self.error_signs["best_referral"] = (box, label)
+                self._error_signs["best_referral"] = (box, label)
 
                 with ui.element("div").classes("w-full lg:w-2/3") as box:
                     ui.label(
@@ -137,7 +143,7 @@ class FeedbackComponent:
                     label = ui.label("Please provide timing information").classes("text-red-600 text-sm mt-4")
                     label.visible = False
 
-                self.error_signs["referral_timing"] = (box, label)
+                self._error_signs["referral_timing"] = (box, label)
 
                 ui.separator()
 
@@ -159,7 +165,7 @@ class FeedbackComponent:
                     label = ui.label("Please select one option").classes("text-red-600 text-sm mt-4")
                     label.visible = False
 
-                self.error_signs["seekers_preference"] = (box, label)
+                self._error_signs["seekers_preference"] = (box, label)
 
                 with ui.element("div").classes("w-full lg:w-2/3") as box:
                     ui.label(
@@ -178,7 +184,7 @@ class FeedbackComponent:
                     label = ui.label("Please provide your reasoning").classes("text-red-600 text-sm mt-4")
                     label.visible = False
 
-                self.error_signs["seekers_reason"] = (box, label)
+                self._error_signs["seekers_reason"] = (box, label)
 
                 ui.separator()
 
@@ -210,12 +216,12 @@ class FeedbackComponent:
         self._row = row
 
     def _show_errors(self, field: str):
-        self.error_signs[field][0].classes(add=self.error_box_classes)
-        self.error_signs[field][1].visible = True
+        self._error_signs[field][0].classes(add=self._error_box_classes)
+        self._error_signs[field][1].visible = True
 
     def _hide_errors(self, field: str):
-        self.error_signs[field][0].classes(remove=self.error_box_classes)
-        self.error_signs[field][1].visible = False
+        self._error_signs[field][0].classes(remove=self._error_box_classes)
+        self._error_signs[field][1].visible = False
 
     def _check_errors(self):
         if self.result["rate1"] != 0 and self.result["rate2"] != 0 and self.result["rate3"] != 0:
@@ -272,9 +278,11 @@ class FeedbackComponent:
 
         if errors_found:
             ui.notify(self.result)
-            return 
+            return
 
         ui.notify("Bedankt voor je feedback!", type="positive")
+        # TODO: go to thank you page
+        self._flow_manager.submit_user_feedback(json.dumps(self.result))
 
     def element(self) -> Row:
         return self._row

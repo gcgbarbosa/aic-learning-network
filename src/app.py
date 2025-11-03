@@ -61,7 +61,7 @@ def main():
     chat_container.element.classes.remove("absolute-full")
     chat_container.element.classes.append("h-120")
 
-    FeedbackComponent()
+    FeedbackComponent(flow_manager)
 
     ui.run_javascript("window.scrollTo(0, document.body.scrollHeight)")
 
