@@ -98,17 +98,24 @@ class FeedbackComponent:
                 ui.separator()
 
                 # best
-                ui.label(
-                    "Welke chatbot heeft het beste doorverwezen naar menselijke hulp volgens jou? (verplicht)"
-                ).classes("font-semibold")
-                ui.label("Kies precies één optie.").classes("text-xs text-gray-500")
+                with ui.element("div").classes() as box:
+                    ui.label(
+                        "Welke chatbot heeft het beste doorverwezen naar menselijke hulp volgens jou? (verplicht)"
+                    ).classes("font-semibold")
+                    ui.label("Kies precies één optie.").classes("text-xs text-gray-500")
 
-                self.best_ref = (
-                    ui.radio(options=["Chatbot 1", "Chatbot 2", "Chatbot 3", "weet niet"])
-                    .classes("w-full max-w-xl")
-                    .props("inline")
-                    .bind_value_to(self.result, "best_referral")
-                )
+                    self.best_ref = (
+                        ui.radio(options=["Chatbot 1", "Chatbot 2", "Chatbot 3", "weet niet"])
+                        .classes("w-full max-w-xl")
+                        .props("inline")
+                        .bind_value_to(self.result, "best_referral")
+                        .on_value_change(self._check_errors)
+                    )
+
+                    label = ui.label("Please select one option").classes("text-red-600 text-sm mt-4")
+                    label.visible = False
+
+                self.error_signs["best_referral"] = (box, label)
 
                 ui.label(
                     "Terugkijkend: op welk moment in chatgesprekken moet er best doorverwezen worden naar "
@@ -220,8 +227,8 @@ class FeedbackComponent:
         # self._show_errors([])
 
     def _show_errors(self, field: str):
-        self.error_signs[field][0].classes(remove=self.error_box_classes)
-        self.error_signs[field][1].visible = False
+        self.error_signs[field][0].classes(add=self.error_box_classes)
+        self.error_signs[field][1].visible = True
 
     def _hide_errors(self, field: str):
         self.error_signs[field][0].classes(remove=self.error_box_classes)
@@ -234,12 +241,18 @@ class FeedbackComponent:
         if self.result["professional_preference"] is not None:
             self._hide_errors("professional_preference")
 
+        if self.result["best_referral"] is not None:
+            self._hide_errors("best_referral")
+
     def _submit(self):
         if self.result["rate1"] == 0 or self.result["rate2"] == 0 or self.result["rate3"] == 0:
             self._show_errors("ratings")
 
         if self.result["professional_preference"] is None:
             self._show_errors("professional_preference")
+
+        if self.result["best_referral"] is None:
+            self._show_errors("best_referral")
 
         ui.notify(self.result)
         ui.notify("Bedankt voor je feedback!", type="positive")
