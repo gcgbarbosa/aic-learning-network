@@ -169,18 +169,25 @@ class FeedbackComponent:
 
                 self.error_signs["seekers_preference"] = (box, label)
 
-                ui.label(
-                    "Wat maakt dat je denkt dat hulpzoekers deze chatbot zouden verkiezen? "
-                    "Hoe zouden zij kijken naar zo’n doorverwijzing? (verplicht)"
-                ).classes("font-semibold")
-                ui.label("Licht je redenering toe.").classes("text-xs text-gray-500")
+                with ui.element("div").classes("w-full lg:w-2/3") as box:
+                    ui.label(
+                        "Wat maakt dat je denkt dat hulpzoekers deze chatbot zouden verkiezen? "
+                        "Hoe zouden zij kijken naar zo'n doorverwijzing? (verplicht)"
+                    ).classes("font-semibold")
+                    ui.label("Licht je redenering toe.").classes("text-xs text-gray-500")
 
-                self.seekers_reason = (
-                    ui.textarea(placeholder="Leg je redenering uit...")
-                    .props("outlined autogrow counter maxlength=600 rows=3")
-                    .classes("w-full")
-                    .bind_value_to(self.result, "seekers_reason")
-                )
+                    self.seekers_reason = (
+                        ui.textarea(placeholder="Leg je redenering uit...")
+                        .props("outlined autogrow counter maxlength=600 rows=3")
+                        .classes("w-full")
+                        .bind_value_to(self.result, "seekers_reason")
+                        .on_value_change(self._check_errors)
+                    )
+
+                    label = ui.label("Please provide your reasoning").classes("text-red-600 text-sm mt-4")
+                    label.visible = False
+
+                self.error_signs["seekers_reason"] = (box, label)
 
                 ui.separator()
 
@@ -274,6 +281,9 @@ class FeedbackComponent:
         if self.result["seekers_preference"] is not None:
             self._hide_errors("seekers_preference")
 
+        if self.result["seekers_reason"].strip():
+            self._hide_errors("seekers_reason")
+
     def _submit(self):
         if self.result["rate1"] == 0 or self.result["rate2"] == 0 or self.result["rate3"] == 0:
             self._show_errors("ratings")
@@ -292,6 +302,9 @@ class FeedbackComponent:
 
         if self.result["seekers_preference"] is None:
             self._show_errors("seekers_preference")
+
+        if not self.result["seekers_reason"].strip():
+            self._show_errors("seekers_reason")
 
         ui.notify(self.result)
         ui.notify("Bedankt voor je feedback!", type="positive")
