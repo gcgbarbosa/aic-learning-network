@@ -8,7 +8,7 @@ class FeedbackComponent:
         self.error_box_classes = "border border-red-300 p-4 rounded-sm"
 
         with ui.row().classes("w-full") as row:
-            with ui.column().classes("mx-4 p-8 w-full border border-gray-300 rounded-sm gap-5"):
+            with ui.column().classes("mx-4 p-8 w-full border border-gray-300 rounded-sm gap-4"):
                 ui.label("Feedback Survey").classes("text-lg font-bold")
 
                 self.result = {
@@ -32,8 +32,7 @@ class FeedbackComponent:
 
                 with ui.element("div").classes("w-full lg:w-2/3") as box:
                     # ratings
-                    ui.label("Rating: hoeveel sterren geef je elk van de drie chatbots").classes("font-semibold")
-                    ui.label("Kies voor elke chatbot 0 tot 5 sterren.").classes("text-xs text-gray-500")
+                    ui.label("Rating: hoeveel sterren geef je elk van de drie chatbots").classes("font-semibold mb-2")
 
                     with ui.row().classes("items-center gap-8"):
                         with ui.column().classes("gap-1"):
@@ -68,7 +67,6 @@ class FeedbackComponent:
                     ui.label(
                         "Welke van de chatbots heeft je voorkeur vanuit de positie van professional? (verplicht)"
                     ).classes("font-semibold")
-                    ui.label("Kies precies één optie.").classes("text-xs text-gray-500")
 
                     self.prof_pref = (
                         ui.radio(options=["Chatbot 1", "Chatbot 2", "Chatbot 3", "weet niet"])
@@ -86,8 +84,7 @@ class FeedbackComponent:
                 with ui.element("div").classes("w-full lg:w-2/3") as box:
                     ui.label(
                         "Wat maakt dat jij, als professional, deze chatbot verkiest? Leg uit waarom (verplicht)"
-                    ).classes("font-semibold")
-                    ui.label("Schrijf kort en duidelijk.").classes("text-xs text-gray-500")
+                    ).classes("font-semibold mb-4")
 
                     self.prof_reason = (
                         ui.textarea(placeholder="Beschrijf je motivatie...")
@@ -109,7 +106,6 @@ class FeedbackComponent:
                     ui.label(
                         "Welke chatbot heeft het beste doorverwezen naar menselijke hulp volgens jou? (verplicht)"
                     ).classes("font-semibold")
-                    ui.label("Kies precies één optie.").classes("text-xs text-gray-500")
 
                     self.best_ref = (
                         ui.radio(options=["Chatbot 1", "Chatbot 2", "Chatbot 3", "weet niet"])
@@ -128,10 +124,7 @@ class FeedbackComponent:
                     ui.label(
                         "Terugkijkend: op welk moment in chatgesprekken moet er best doorverwezen worden naar "
                         "menselijke hulp bij gevoelige onderwerpen? (verplicht)"
-                    ).classes("font-semibold")
-                    ui.label("Noem signalen of situaties waarin doorverwijzen aangewezen is.").classes(
-                        "text-xs text-gray-500"
-                    )
+                    ).classes("font-semibold mb-4")
 
                     self.ref_timing = (
                         ui.textarea(placeholder="Beschrijf het ideale moment of de signalen...")
@@ -154,7 +147,6 @@ class FeedbackComponent:
                         "Vanuit het perspectief van hulpzoekers (zoals jongeren): welke chatbot zouden zij prefereren? "
                         "(verplicht)"
                     ).classes("font-semibold")
-                    ui.label("Kies precies één optie.").classes("text-xs text-gray-500")
 
                     self.seekers_pref = (
                         ui.radio(options=["Chatbot 1", "Chatbot 2", "Chatbot 3", "weet niet"])
@@ -173,8 +165,7 @@ class FeedbackComponent:
                     ui.label(
                         "Wat maakt dat je denkt dat hulpzoekers deze chatbot zouden verkiezen? "
                         "Hoe zouden zij kijken naar zo'n doorverwijzing? (verplicht)"
-                    ).classes("font-semibold")
-                    ui.label("Licht je redenering toe.").classes("text-xs text-gray-500")
+                    ).classes("font-semibold mb-4")
 
                     self.seekers_reason = (
                         ui.textarea(placeholder="Leg je redenering uit...")
@@ -198,7 +189,7 @@ class FeedbackComponent:
                 self.other = (
                     ui.textarea(placeholder="Andere opmerkingen...")
                     .props("outlined autogrow counter maxlength=600 rows=3")
-                    .classes("w-full")
+                    .classes("w-full lg:w-2/3")
                     .bind_value_to(self.result, "other_remarks")
                 )
 
@@ -209,50 +200,14 @@ class FeedbackComponent:
                 self.snippet = (
                     ui.textarea(placeholder="Plak hier een fragment en licht toe...")
                     .props("outlined autogrow counter maxlength=1200 rows=5")
-                    .classes("w-full")
+                    .classes("w-full lg:w-2/3")
                     .bind_value_to(self.result, "chat_snippet")
                 )
 
-                # buttons
                 with ui.row().classes("gap-3 mt-2"):
-                    submit_button = ui.button("Verzend feedback", on_click=self._submit).classes("btn-primary")
-                    ui.button("Leeg formulier", on_click=self._reset).props("flat")
+                    ui.button("Verzend feedback", on_click=self._submit).classes("btn-primary")
 
         self._row = row
-
-    def _reset(self):
-        # reset all fields
-        self.result.update(
-            {
-                "rate1": 0,
-                "rate2": 0,
-                "rate3": 0,
-                "professional_preference": None,
-                "best_referral": None,
-                "seekers_preference": None,
-                "professional_reason": "",
-                "referral_timing": "",
-                "seekers_reason": "",
-                "other_remarks": "",
-                "chat_snippet": "",
-            }
-        )
-        ui.notify("Formulier leeggemaakt.")
-
-        # re-render
-        for el in (
-            self.prof_pref,
-            self.best_ref,
-            self.seekers_pref,
-            self.prof_reason,
-            self.ref_timing,
-            self.seekers_reason,
-            self.other,
-            self.snippet,
-        ):
-            el.update()
-        # hide errors again
-        # self._show_errors([])
 
     def _show_errors(self, field: str):
         self.error_signs[field][0].classes(add=self.error_box_classes)
@@ -285,41 +240,41 @@ class FeedbackComponent:
             self._hide_errors("seekers_reason")
 
     def _submit(self):
+        errors_found = False
+
         if self.result["rate1"] == 0 or self.result["rate2"] == 0 or self.result["rate3"] == 0:
             self._show_errors("ratings")
+            errors_found = True
 
         if self.result["professional_preference"] is None:
             self._show_errors("professional_preference")
+            errors_found = True
 
         if not self.result["professional_reason"].strip():
             self._show_errors("professional_reason")
+            errors_found = True
 
         if self.result["best_referral"] is None:
             self._show_errors("best_referral")
+            errors_found = True
 
         if not self.result["referral_timing"].strip():
             self._show_errors("referral_timing")
+            errors_found = True
 
         if self.result["seekers_preference"] is None:
             self._show_errors("seekers_preference")
+            errors_found = True
 
         if not self.result["seekers_reason"].strip():
             self._show_errors("seekers_reason")
+            errors_found = True
 
-        ui.notify(self.result)
+        if errors_found:
+            ui.notify(self.result)
+            return 
+
         ui.notify("Bedankt voor je feedback!", type="positive")
-
-    def _show_errors__(self, messages: list[str]):
-        # Simple error list at the top; show/hide + render bullets
-        self.error_box.clear()
-        if messages:
-            self.error_box.classes(remove="hidden")
-            with self.error_box:
-                ui.label("Gelieve de volgende punten te vervolledigen:").classes("text-red-600 font-semibold")
-                for msg in messages:
-                    ui.label(f"• {msg}").classes("text-red-600")
-        else:
-            self.error_box.classes(add="hidden")
 
     def element(self) -> Row:
         return self._row
