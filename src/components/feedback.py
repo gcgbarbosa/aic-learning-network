@@ -30,7 +30,7 @@ class FeedbackComponent:
 
                 self.error_box = ui.column().classes("hidden")
 
-                with ui.element("div") as box:
+                with ui.element("div").classes("w-full lg:w-2/3") as box:
                     # ratings
                     ui.label("Rating: hoeveel sterren geef je elk van de drie chatbots").classes("font-semibold")
                     ui.label("Kies voor elke chatbot 0 tot 5 sterren.").classes("text-xs text-gray-500")
@@ -64,7 +64,7 @@ class FeedbackComponent:
 
                 # preferences
 
-                with ui.element("div").classes() as box:
+                with ui.element("div").classes("w-full lg:w-2/3") as box:
                     ui.label(
                         "Welke van de chatbots heeft je voorkeur vanuit de positie van professional? (verplicht)"
                     ).classes("font-semibold")
@@ -83,22 +83,29 @@ class FeedbackComponent:
 
                 self.error_signs["professional_preference"] = (box, label)
 
-                ui.label(
-                    "Wat maakt dat jij, als professional, deze chatbot verkiest? Leg uit waarom (verplicht)"
-                ).classes("font-semibold")
-                ui.label("Schrijf kort en duidelijk.").classes("text-xs text-gray-500")
+                with ui.element("div").classes("w-full lg:w-2/3") as box:
+                    ui.label(
+                        "Wat maakt dat jij, als professional, deze chatbot verkiest? Leg uit waarom (verplicht)"
+                    ).classes("font-semibold")
+                    ui.label("Schrijf kort en duidelijk.").classes("text-xs text-gray-500")
 
-                self.prof_reason = (
-                    ui.textarea(placeholder="Beschrijf je motivatie...")
-                    .props("outlined autogrow counter maxlength=600 rows=3")
-                    .classes("w-full lg:w-2/3")
-                    .bind_value_to(self.result, "professional_reason")
-                )
+                    self.prof_reason = (
+                        ui.textarea(placeholder="Beschrijf je motivatie...")
+                        .props("outlined autogrow counter maxlength=600 rows=3")
+                        .classes("w-full")
+                        .bind_value_to(self.result, "professional_reason")
+                        .on_value_change(self._check_errors)
+                    )
+
+                    label = ui.label("Please provide a reason").classes("text-red-600 text-sm mt-4")
+                    label.visible = False
+
+                self.error_signs["professional_reason"] = (box, label)
 
                 ui.separator()
 
                 # best
-                with ui.element("div").classes() as box:
+                with ui.element("div").classes("w-full lg:w-2/3") as box:
                     ui.label(
                         "Welke chatbot heeft het beste doorverwezen naar menselijke hulp volgens jou? (verplicht)"
                     ).classes("font-semibold")
@@ -128,14 +135,14 @@ class FeedbackComponent:
                 self.ref_timing = (
                     ui.textarea(placeholder="Beschrijf het ideale moment of de signalen...")
                     .props("outlined autogrow counter maxlength=600 rows=3")
-                    .classes("w-full lg:w-2/3")
+                    .classes("w-full")
                     .bind_value_to(self.result, "referral_timing")
                 )
 
                 ui.separator()
 
                 # seeker's perspective
-                with ui.element("div").classes() as box:
+                with ui.element("div").classes("w-full lg:w-2/3") as box:
                     ui.label(
                         "Vanuit het perspectief van hulpzoekers (zoals jongeren): welke chatbot zouden zij prefereren? "
                         "(verplicht)"
@@ -164,7 +171,7 @@ class FeedbackComponent:
                 self.seekers_reason = (
                     ui.textarea(placeholder="Leg je redenering uit...")
                     .props("outlined autogrow counter maxlength=600 rows=3")
-                    .classes("w-full lg:w-2/3")
+                    .classes("w-full")
                     .bind_value_to(self.result, "seekers_reason")
                 )
 
@@ -177,7 +184,7 @@ class FeedbackComponent:
                 self.other = (
                     ui.textarea(placeholder="Andere opmerkingen...")
                     .props("outlined autogrow counter maxlength=600 rows=3")
-                    .classes("w-full lg:w-2/3")
+                    .classes("w-full")
                     .bind_value_to(self.result, "other_remarks")
                 )
 
@@ -188,7 +195,7 @@ class FeedbackComponent:
                 self.snippet = (
                     ui.textarea(placeholder="Plak hier een fragment en licht toe...")
                     .props("outlined autogrow counter maxlength=1200 rows=5")
-                    .classes("w-full lg:w-2/3")
+                    .classes("w-full")
                     .bind_value_to(self.result, "chat_snippet")
                 )
 
@@ -248,6 +255,9 @@ class FeedbackComponent:
         if self.result["professional_preference"] is not None:
             self._hide_errors("professional_preference")
 
+        if self.result["professional_reason"].strip():
+            self._hide_errors("professional_reason")
+
         if self.result["best_referral"] is not None:
             self._hide_errors("best_referral")
 
@@ -260,6 +270,9 @@ class FeedbackComponent:
 
         if self.result["professional_preference"] is None:
             self._show_errors("professional_preference")
+
+        if not self.result["professional_reason"].strip():
+            self._show_errors("professional_reason")
 
         if self.result["best_referral"] is None:
             self._show_errors("best_referral")
