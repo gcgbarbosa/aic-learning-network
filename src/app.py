@@ -22,9 +22,10 @@ logger.info("Initializing AI-Cares application")
 def main():
     ui.colors(secondary="#f58732", primary="#009ad4", accent="#5ab031")
 
+    # TODO: create interaction
     flow_manager = FlowManager()
 
-    # SessionModalComponent(flow_manager)
+    SessionModalComponent(flow_manager)
 
     TIME_PER_STEP = 5
     elapsed_time = 0
@@ -44,8 +45,12 @@ def main():
     footer = FooterComponent(chat_container)
 
     # TODO: remove after test
-    footer._btn_input_chat.enable()
-    footer._txt_input_chat.enable()
+    # footer._btn_input_chat.enable()
+    # footer._txt_input_chat.enable()
+    
+
+    feedback = FeedbackComponent(flow_manager)
+
 
     def countdown():
         has_time_left = timer_model.remaining > 0
@@ -56,12 +61,10 @@ def main():
 
         timer.active = False
 
-    footer.element.hide()
+        footer.element.hide()
+        chat_container.element.classes.remove("absolute-full")
+        chat_container.element.classes.append("h-120")
 
-    chat_container.element.classes.remove("absolute-full")
-    chat_container.element.classes.append("h-120")
-
-    FeedbackComponent(flow_manager)
 
     ui.run_javascript("window.scrollTo(0, document.body.scrollHeight)")
 

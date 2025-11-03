@@ -12,7 +12,7 @@ from loguru import logger
 
 
 class FlowManager:
-    def __init__(self):
+    def __init__(self, interaction_id: str | None = None):
         self._db = PocketBaseDB()
 
         DEFAULT_SETTING_ID = os.getenv("DEFAULT_SETTING_ID")

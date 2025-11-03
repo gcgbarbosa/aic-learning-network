@@ -284,5 +284,8 @@ class FeedbackComponent:
         # TODO: go to thank you page
         self._flow_manager.submit_user_feedback(json.dumps(self.result))
 
-    def element(self) -> Row:
-        return self._row
+    def show(self):
+        self._row.visible = True
+
+    def hide(self):
+        self._row.visible = False
