@@ -135,18 +135,25 @@ class FeedbackComponent:
                 ui.separator()
 
                 # seeker's perspective
-                ui.label(
-                    "Vanuit het perspectief van hulpzoekers (zoals jongeren): welke chatbot zouden zij prefereren? "
-                    "(verplicht)"
-                ).classes("font-semibold")
-                ui.label("Kies precies één optie.").classes("text-xs text-gray-500")
+                with ui.element("div").classes() as box:
+                    ui.label(
+                        "Vanuit het perspectief van hulpzoekers (zoals jongeren): welke chatbot zouden zij prefereren? "
+                        "(verplicht)"
+                    ).classes("font-semibold")
+                    ui.label("Kies precies één optie.").classes("text-xs text-gray-500")
 
-                self.seekers_pref = (
-                    ui.radio(options=["Chatbot 1", "Chatbot 2", "Chatbot 3", "weet niet"])
-                    .classes("w-full max-w-xl")
-                    .props("inline")
-                    .bind_value_to(self.result, "seekers_preference")
-                )
+                    self.seekers_pref = (
+                        ui.radio(options=["Chatbot 1", "Chatbot 2", "Chatbot 3", "weet niet"])
+                        .classes("w-full max-w-xl")
+                        .props("inline")
+                        .bind_value_to(self.result, "seekers_preference")
+                        .on_value_change(self._check_errors)
+                    )
+
+                    label = ui.label("Please select one option").classes("text-red-600 text-sm mt-4")
+                    label.visible = False
+
+                self.error_signs["seekers_preference"] = (box, label)
 
                 ui.label(
                     "Wat maakt dat je denkt dat hulpzoekers deze chatbot zouden verkiezen? "
@@ -244,6 +251,9 @@ class FeedbackComponent:
         if self.result["best_referral"] is not None:
             self._hide_errors("best_referral")
 
+        if self.result["seekers_preference"] is not None:
+            self._hide_errors("seekers_preference")
+
     def _submit(self):
         if self.result["rate1"] == 0 or self.result["rate2"] == 0 or self.result["rate3"] == 0:
             self._show_errors("ratings")
@@ -253,6 +263,9 @@ class FeedbackComponent:
 
         if self.result["best_referral"] is None:
             self._show_errors("best_referral")
+
+        if self.result["seekers_preference"] is None:
+            self._show_errors("seekers_preference")
 
         ui.notify(self.result)
         ui.notify("Bedankt voor je feedback!", type="positive")
