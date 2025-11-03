@@ -124,20 +124,27 @@ class FeedbackComponent:
 
                 self.error_signs["best_referral"] = (box, label)
 
-                ui.label(
-                    "Terugkijkend: op welk moment in chatgesprekken moet er best doorverwezen worden naar "
-                    "menselijke hulp bij gevoelige onderwerpen? (verplicht)"
-                ).classes("font-semibold")
-                ui.label("Noem signalen of situaties waarin doorverwijzen aangewezen is.").classes(
-                    "text-xs text-gray-500"
-                )
+                with ui.element("div").classes("w-full lg:w-2/3") as box:
+                    ui.label(
+                        "Terugkijkend: op welk moment in chatgesprekken moet er best doorverwezen worden naar "
+                        "menselijke hulp bij gevoelige onderwerpen? (verplicht)"
+                    ).classes("font-semibold")
+                    ui.label("Noem signalen of situaties waarin doorverwijzen aangewezen is.").classes(
+                        "text-xs text-gray-500"
+                    )
 
-                self.ref_timing = (
-                    ui.textarea(placeholder="Beschrijf het ideale moment of de signalen...")
-                    .props("outlined autogrow counter maxlength=600 rows=3")
-                    .classes("w-full")
-                    .bind_value_to(self.result, "referral_timing")
-                )
+                    self.ref_timing = (
+                        ui.textarea(placeholder="Beschrijf het ideale moment of de signalen...")
+                        .props("outlined autogrow counter maxlength=600 rows=3")
+                        .classes("w-full")
+                        .bind_value_to(self.result, "referral_timing")
+                        .on_value_change(self._check_errors)
+                    )
+
+                    label = ui.label("Please provide timing information").classes("text-red-600 text-sm mt-4")
+                    label.visible = False
+
+                self.error_signs["referral_timing"] = (box, label)
 
                 ui.separator()
 
@@ -261,6 +268,9 @@ class FeedbackComponent:
         if self.result["best_referral"] is not None:
             self._hide_errors("best_referral")
 
+        if self.result["referral_timing"].strip():
+            self._hide_errors("referral_timing")
+
         if self.result["seekers_preference"] is not None:
             self._hide_errors("seekers_preference")
 
@@ -276,6 +286,9 @@ class FeedbackComponent:
 
         if self.result["best_referral"] is None:
             self._show_errors("best_referral")
+
+        if not self.result["referral_timing"].strip():
+            self._show_errors("referral_timing")
 
         if self.result["seekers_preference"] is None:
             self._show_errors("seekers_preference")
