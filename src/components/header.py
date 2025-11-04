@@ -64,7 +64,7 @@ class HeaderComponent:
             self._start_btn.set_text("Pause conversation")
             self._footer.enable_chat()
 
-            if hasattr(self, "config_btn"):
+            if hasattr(self, "_config_btn"):
                 self._config_btn.disable()
 
     def format_time_left(self, seconds: int) -> str:
