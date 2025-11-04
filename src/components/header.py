@@ -65,7 +65,8 @@ class HeaderComponent:
             self._footer.enable_chat()
 
             if hasattr(self, "_config_btn"):
-                self._config_btn.disable()
+                # self._config_btn.disable()
+                self._config_btn.visible = False
 
     def format_time_left(self, seconds: int) -> str:
         """Format countdown seconds into mm:ss string (skip hours)."""
