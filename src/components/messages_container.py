@@ -60,6 +60,7 @@ class MessagesContainerComponent:
         try:
             with self._message_container:
                 ui.chat_message(user_prompt, name=name, avatar=USER_AVATAR).props("sent")
+                self._scroll_area.scroll_to(percent=100)
 
                 assistant_response = ui.chat_message(
                     name=self._chatbot_name,
