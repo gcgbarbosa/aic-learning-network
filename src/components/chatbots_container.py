@@ -48,6 +48,10 @@ class ChatbotsContainerComponent:
     @property
     def element(self) -> Grid:
         return self._chatbot_container
+    
+    def freeze(self) -> None:
+        self._chatbot_container.classes.remove("absolute-full")
+        self._chatbot_container.classes.append("h-120")
 
     def get_message_container(self, index):
         if index < 1 or index > len(self._message_containers):
