@@ -31,6 +31,9 @@ class SettingsModalComponent:
     def _initialize(self) -> None:
         # --- Data/state caches -------------------------------------------------
         active_interaction = self._flow_manager.get_interaction()
+        if not active_interaction:
+            raise ValueError("No active interaction found in FlowManager")
+
         chatbot_id_list: List[str] = self._flow_manager.get_chatbot_ids()
         logger.debug("Loaded interaction and chatbot ids: {}", chatbot_id_list)
 
