@@ -12,6 +12,7 @@ from src.models.chatbot_setting import ChatbotSettingsRecord
 from src.models.interaction_setting import InteractionSettingsRecord
 
 BTN_SIZE = 'size="15px"'
+BTN_SIZE = ""
 
 
 class SettingsModalComponent:
@@ -25,6 +26,9 @@ class SettingsModalComponent:
         logger.debug("Initializing SettingsModalComponent")
         self._flow_manager = flow_manager
 
+        self._initialized = False
+
+    def _initialize(self) -> None:
         # --- Data/state caches -------------------------------------------------
         active_interaction = self._flow_manager.get_interaction()
         chatbot_id_list: List[str] = self._flow_manager.get_chatbot_ids()
@@ -81,8 +85,12 @@ class SettingsModalComponent:
     # -------------------------------------------------------------------------
 
     def show(self) -> None:
-        logger.debug("Showing SettingsModalComponent dialog")
+        if self._initialized is False:
+            logger.debug("Initializing SettingsModalComponent UI on first show")
+            self._initialize()
+
         if self._settings_dialog:
+            logger.debug("Showing SettingsModalComponent dialog")
             self._settings_dialog.open()
 
     def hide(self) -> None:
@@ -319,12 +327,6 @@ class SettingsModalComponent:
                     ui.label("General system prompt").classes("text-xl")
                     ui.space()
 
-                    self._create_button = (
-                        ui.button("Create new", icon="new_label")
-                        .props(f'{BTN_SIZE} color="secondary"')
-                        .on_click(self._naming_dialog.open)
-                    )
-
                     self._settings_select = (
                         ui.select(
                             label="Settings name",
@@ -335,6 +337,12 @@ class SettingsModalComponent:
                         )
                         .classes("w-64")
                         .props(f"outlined dense {BTN_SIZE}")
+                    )
+
+                    self._create_button = (
+                        ui.button("Create new", icon="new_label")
+                        .props(f'{BTN_SIZE} color="secondary"')
+                        .on_click(self._naming_dialog.open)
                     )
 
                     self._select_button = (
