@@ -192,21 +192,25 @@ class PocketBaseDB:
             chatbot_id=result.chatbot_id,  # type: ignore
         )
 
-    def get_chatbot_interaction(self, chatbot_interaction_id: str) -> ChatbotInteractionRecord:
-        interaction_record = self.client.collection("chatbot_interactions").get_one(chatbot_interaction_id)
+    def get_chatbot_interaction(self, chatbot_interaction_id: str) -> ChatbotInteractionRecord | None:
+        try: 
+            interaction_record = self.client.collection("chatbot_interactions").get_one(chatbot_interaction_id)
 
-        record_result = ChatbotInteractionRecord(
-            id=interaction_record.id,
-            created=interaction_record.created,  # type: ignore
-            updated=interaction_record.updated,  # type: ignore
-            is_finished=interaction_record.is_finished,  # type: ignore
-            elapsed_time=interaction_record.elapsed_time,  # type: ignore
-            user_name=interaction_record.user_name,  # type: ignore
-            session_id=interaction_record.session_id,  # type: ignore
-            interaction_settings_id=interaction_record.interaction_settings_id,  # type: ignore
-        )
+            record_result = ChatbotInteractionRecord(
+                id=interaction_record.id,
+                created=interaction_record.created,  # type: ignore
+                updated=interaction_record.updated,  # type: ignore
+                is_finished=interaction_record.is_finished,  # type: ignore
+                elapsed_time=interaction_record.elapsed_time,  # type: ignore
+                user_name=interaction_record.user_name,  # type: ignore
+                session_id=interaction_record.session_id,  # type: ignore
+                interaction_settings_id=interaction_record.interaction_settings_id,  # type: ignore
+            )
 
-        return record_result
+            return record_result
+        except Exception as e:
+            logger.error(f"Error fetching chatbot interaction {chatbot_interaction_id}: {e}")
+            return None
 
     def list_chatbot_interactions_by_session(self, session_id: str) -> list[ChatbotInteractionRecord]:
         interaction_records = self.client.collection("chatbot_interactions").get_full_list(
