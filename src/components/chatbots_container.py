@@ -17,6 +17,7 @@ class ChatbotsContainerComponent:
         with ui.grid(columns=3).classes("w-full absolute-full px-4 pt-4") as container:
             chatbot_id, chatbot, messages = flow_manager.get_chatbot_01()
             m1 = MessagesContainerComponent(
+                "Chatbot #1",
                 chatbot,
                 messages,
                 lambda e, chatbot_id=chatbot_id: flow_manager.save_assistant_message(content=e, chatbot_id=chatbot_id),
@@ -25,6 +26,7 @@ class ChatbotsContainerComponent:
 
             chatbot_id, chatbot, messages = flow_manager.get_chatbot_02()
             m2 = MessagesContainerComponent(
+                "Chatbot #2",
                 chatbot,
                 messages,
                 lambda e, chatbot_id=chatbot_id: flow_manager.save_assistant_message(content=e, chatbot_id=chatbot_id),
@@ -33,6 +35,7 @@ class ChatbotsContainerComponent:
 
             chatbot_id, chatbot, messages = flow_manager.get_chatbot_03()
             m3 = MessagesContainerComponent(
+                "Chatbot #3",
                 chatbot,
                 messages,
                 lambda e, chatbot_id=chatbot_id: flow_manager.save_assistant_message(content=e, chatbot_id=chatbot_id),
@@ -48,7 +51,7 @@ class ChatbotsContainerComponent:
     @property
     def element(self) -> Grid:
         return self._chatbot_container
-    
+
     def freeze(self) -> None:
         self._chatbot_container.classes.remove("absolute-full")
         self._chatbot_container.classes.append("h-120")
