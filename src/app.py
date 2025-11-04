@@ -1,16 +1,15 @@
 """Entrypoint"""
 
 from loguru import logger
-from nicegui import ui
+from nicegui import app, ui
 
 from components import (
     ChatbotsContainerComponent,
+    FeedbackComponent,
     FooterComponent,
     HeaderComponent,
     SettingsModalComponent,
-    FeedbackComponent,
 )
-
 from src.components.session_modal import SessionModalComponent
 from src.controllers import TimerModel
 from src.flow_manager import FlowManager
@@ -22,57 +21,61 @@ logger.info("Initializing AI-Cares application")
 def main():
     ui.colors(secondary="#f58732", primary="#009ad4", accent="#5ab031")
 
-    # TODO: create interaction
+    # TODO: remove this
+    interaction_id = app.storage.user.get("interaction_id", None)
+    ui.notify(interaction_id)
+    # app.storage.user["interaction_id"] = "ttvxe4qk4erlw4a"
+
     flow_manager = FlowManager()
 
-    SessionModalComponent(flow_manager)
+    settings_component = None
+    if flow_manager.interaction_id is None:
+        SessionModalComponent(flow_manager)
+        settings_component = SettingsModalComponent(flow_manager)
 
-    TIME_PER_STEP = 5
-    elapsed_time = 0
+    TIME_PER_STEP = 30
+    elapsed_time = flow_manager.get_elapsed_time()
+
+
     timer_model = TimerModel(max(0, TIME_PER_STEP - elapsed_time))
 
     timer = ui.timer(1.0, callback=lambda: ui.notify("The application is not ready yet"), active=False)
 
+
     ui.page_title("AI-Cares")
-
-    settings_component = SettingsModalComponent(flow_manager)
-    # settings_component.show()
-
-    HeaderComponent(timer_model, timer, settings_component)
 
     chat_container = ChatbotsContainerComponent(flow_manager)
 
     footer = FooterComponent(chat_container)
 
-    # TODO: remove after test
-    # footer._btn_input_chat.enable()
-    # footer._txt_input_chat.enable()
-    
+    HeaderComponent(timer_model=timer_model, timer=timer, settings_component=settings_component, footer=footer)
 
     feedback = FeedbackComponent(flow_manager)
-
 
     def countdown():
         has_time_left = timer_model.remaining > 0
 
         if has_time_left:
+            if timer_model.remaining % 10 == 0:
+                flow_manager.updated_elapsed_time(TIME_PER_STEP - timer_model.remaining)
+
             timer_model.remaining -= 1
             return
 
         timer.active = False
+        flow_manager.updated_elapsed_time(TIME_PER_STEP)
 
-        footer.element.hide()
-        chat_container.element.classes.remove("absolute-full")
-        chat_container.element.classes.append("h-120")
+        footer.hide()
+        chat_container.freeze()
 
+        feedback.show()
+
+    if elapsed_time >= TIME_PER_STEP:
+        timer.activate()
 
     ui.run_javascript("window.scrollTo(0, document.body.scrollHeight)")
 
     timer.callback = countdown
-
-    # footer.element.hide()
-    # chat_container.element.classes.remove("absolute-full")
-    # chat_container.element.classes.append("h-150")
 
 
 if __name__ in {"__main__", "__mp_main__"}:
