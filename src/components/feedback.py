@@ -1,9 +1,8 @@
+import json
+
 from nicegui import ui
-from nicegui.elements.row import Row
 
 from src.flow_manager import FlowManager
-
-import json
 
 
 class FeedbackComponent:
@@ -13,8 +12,17 @@ class FeedbackComponent:
 
         self._flow_manager = flow_manager
 
-        with ui.row().classes("w-full") as row:
-            with ui.column().classes("mx-4 p-8 w-full border border-gray-300 rounded-sm gap-4"):
+        with ui.row().classes("w-full") as feedback_component:
+            with ui.element("div").classes("mx-4 p-8 w-full border border-orange-300 rounded-sm gap-4") as end_message:
+                with ui.column().classes("w-full items-center"):
+                    ui.label("Thanks for taking the survey").classes("text-2xl bold")
+
+                    ui.button("Start a new interaction", on_click=lambda: self._new_interaction()).props(
+                        'color="secondary"'
+                    )
+            end_message.visible = False
+
+            with ui.column().classes("mx-4 p-8 w-full border border-gray-300 rounded-sm gap-4") as feedback_form:
                 ui.label("Feedback Survey").classes("text-lg font-bold")
 
                 self.result = {
@@ -213,7 +221,11 @@ class FeedbackComponent:
                 with ui.row().classes("gap-3 mt-2"):
                     ui.button("Verzend feedback", on_click=self._submit).classes("btn-primary")
 
-        self._row = row
+        feedback_component.visible = False
+        self._feedback_component = feedback_component
+
+        self._end_message = end_message
+        self._feedback_form = feedback_form
 
     def _show_errors(self, field: str):
         self._error_signs[field][0].classes(add=self._error_box_classes)
@@ -277,15 +289,25 @@ class FeedbackComponent:
             errors_found = True
 
         if errors_found:
-            ui.notify(self.result)
+            # ui.notify(self.result)
+            ui.notify("Gelieve de verplichte velden in te vullen.", type="negative")
             return
 
         ui.notify("Bedankt voor je feedback!", type="positive")
-        # TODO: go to thank you page
         self._flow_manager.submit_user_feedback(json.dumps(self.result))
 
+        self._feedback_form.visible = False
+        self._end_message.visible = True
+
     def show(self):
-        self._row.visible = True
+        self._feedback_component.visible = True
 
     def hide(self):
-        self._row.visible = False
+        self._feedback_component.visible = False
+
+    def _new_interaction(self):
+        ui.notify("Cleaning session")
+
+        self._flow_manager.clear_session()
+
+        ui.navigate.to("/")
