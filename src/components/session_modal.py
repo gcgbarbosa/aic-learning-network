@@ -21,5 +21,10 @@ class SessionModalComponent:
 
     def handle_confirm(self) -> None:
         ui.notify("New session started", color="info")
+
+        self._fm.start_flow()
+
         self.dialog.close()
+
+
         # return
