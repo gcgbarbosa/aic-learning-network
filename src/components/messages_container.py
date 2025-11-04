@@ -15,30 +15,34 @@ ASSISTANT_AVATAR = "https://robohash.org/robot"
 
 
 class MessagesContainerComponent:
-    messages = [
-        MessageRecord(
-            id="test", timestamp=time, interaction_id="", role="user", content="Hello, how are you?", chatbot_id=""
-        ),
-        MessageRecord(
-            id="test", timestamp=time, interaction_id="", role="assistant", content="Hello, how are you?", chatbot_id=""
-        ),
-    ]
+    # messages = [
+    #     MessageRecord(
+    #         id="test", timestamp=time, interaction_id="", role="user", content="Hello, how are you?", chatbot_id=""
+    #     ),
+    #     MessageRecord(
+    #         id="test", timestamp=time, interaction_id="", role="assistant", content="Hello, how are you?", chatbot_id=""
+    #     ),
+    # ]
 
-    def __init__(self, agent: BaseChabot, messages: list[MessageRecord], fn):
+    def __init__(self, chatbot_name: str, agent: BaseChabot, messages: list[MessageRecord], fn):
         # n = random.randint(5, 10)  # random integer from 1 to 10
         # messages = self.messages[:n]
 
         with ui.scroll_area().classes("h-full border border-gray-300 rounded-sm") as scroll_area:
             with ui.element("div").classes("w-full pr-4") as message_container:
-                ui.chat_message("Hello, I am here to assist you!", name="Assistant", avatar=ASSISTANT_AVATAR)
+                ui.chat_message("Hello, I am here to assist you!", name=chatbot_name, avatar=ASSISTANT_AVATAR)
 
                 for message in messages:
                     if message.role == "user":
-                        ui.chat_message(message.content, name="You", avatar=USER_AVATAR).props("sent")
+                        with ui.chat_message(name="You", avatar=USER_AVATAR).props("sent"):
+                            ui.markdown(message.content)
                     elif message.role == "assistant":
-                        ui.chat_message(message.content, name="Assistant", avatar=ASSISTANT_AVATAR)
+                        with ui.chat_message(name=chatbot_name, avatar=ASSISTANT_AVATAR):
+                            ui.markdown(message.content)
 
         scroll_area.scroll_to(percent=100)
+
+        self._chatbot_name = chatbot_name
 
         self._message_container = message_container
         self._scroll_area = scroll_area
@@ -48,7 +52,7 @@ class MessagesContainerComponent:
 
     async def add_message(self, user_prompt: str):  # txt_input_chat: Textarea, btn_input_chat: Button) -> None:
         # message_content = txt_input_chat.value
-        name = "User"
+        name = "You"
 
         with self._message_container:
             spinner = ui.spinner(size="lg")
@@ -58,7 +62,7 @@ class MessagesContainerComponent:
                 ui.chat_message(user_prompt, name=name, avatar=USER_AVATAR).props("sent")
 
                 assistant_response = ui.chat_message(
-                    name="Assistant",
+                    name=self._chatbot_name,
                     avatar=ASSISTANT_AVATAR,
                     text_html=True,
                     sanitize=Sanitizer().sanitize,
