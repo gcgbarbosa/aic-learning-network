@@ -10,7 +10,11 @@ class FooterComponent:
     def __init__(self, chatbot_container: ChatbotsContainerComponent):
         with ui.footer().classes("bg-white") as footer:
             with ui.row().classes("items-center w-full max-w-3xl mx-auto  shadow-xl p-1 rounded-md"):
-                text = ui.textarea(placeholder="Ask anything").props("outlined rows=4").classes("col-grow height-full")
+                text = (
+                    ui.textarea(placeholder="Ask anything")
+                    .props("outlined rows=4 maxlength=4000")
+                    .classes("col-grow height-full")
+                )
 
                 button = ui.button(icon="send").props("push id='btn_send'")
                 button.on("click", self.send_user_prompt)
