@@ -4,15 +4,23 @@ from datetime import timedelta
 
 from nicegui.timer import Timer
 
+from src.components.footer import FooterComponent
 from src.components.settings_modal import SettingsModalComponent
 from src.controllers.timer import TimerModel
 
 
 class HeaderComponent:
-    def __init__(self, timer_model: TimerModel, timer: Timer, settings_component: SettingsModalComponent):
+    def __init__(
+        self,
+        timer_model: TimerModel,
+        timer: Timer,
+        footer: FooterComponent,
+        settings_component: SettingsModalComponent | None,
+    ):
         # name = app.storage.user.get("name", "User")
-        
+
         self._timer = timer
+        self._footer = footer
 
         with ui.header().classes("items-center"):
             ui.label().bind_text_from(timer_model, "remaining", backward=self.format_time_left).classes(
@@ -24,11 +32,12 @@ class HeaderComponent:
             )
             self._start_btn.bind_visibility_from(timer_model, "remaining", backward=lambda v: v > 0)
 
-            self._config_btn = (
-                ui.button(icon="settings", on_click=lambda: settings_component.show())
-                .classes("outlined")
-                .props("outline color=white ")
-            )
+            if settings_component is not None:
+                self._config_btn = (
+                    ui.button(icon="settings", on_click=lambda: settings_component.show())
+                    .classes("outlined")
+                    .props("outline color=white ")
+                )
 
             ui.space()
 
@@ -48,11 +57,15 @@ class HeaderComponent:
         if self._timer.active:
             self._timer.deactivate()
             self._start_btn.set_text("Start conversation")
+            self._footer.disable_chat()
 
         else:
             self._timer.activate()
-            self._config_btn.visible = False
             self._start_btn.set_text("Pause conversation")
+            self._footer.enable_chat()
+
+            if hasattr(self, "config_btn"):
+                self._config_btn.disable()
 
     def format_time_left(self, seconds: int) -> str:
         """Format countdown seconds into mm:ss string (skip hours)."""
