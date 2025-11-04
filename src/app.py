@@ -1,7 +1,7 @@
 """Entrypoint"""
 
 from loguru import logger
-from nicegui import app, ui
+from nicegui import ui
 
 from components import (
     ChatbotsContainerComponent,
@@ -13,6 +13,7 @@ from components import (
 from src.components.session_modal import SessionModalComponent
 from src.controllers import TimerModel
 from src.flow_manager import FlowManager
+import os
 
 logger.info("Initializing AI-Cares application")
 
@@ -22,8 +23,8 @@ def main():
     ui.colors(secondary="#f58732", primary="#009ad4", accent="#5ab031")
 
     # TODO: remove this
-    interaction_id = app.storage.user.get("interaction_id", None)
-    ui.notify(interaction_id)
+    # interaction_id = app.storage.user.get("interaction_id", None)
+    # ui.notify(interaction_id)
     # app.storage.user["interaction_id"] = "ttvxe4qk4erlw4a"
 
     flow_manager = FlowManager()
@@ -33,14 +34,12 @@ def main():
         SessionModalComponent(flow_manager)
         settings_component = SettingsModalComponent(flow_manager)
 
-    TIME_PER_STEP = 30
+    TIME_PER_STEP = int(os.getenv("TIME_PER_STEP", 120))
     elapsed_time = flow_manager.get_elapsed_time()
-
 
     timer_model = TimerModel(max(0, TIME_PER_STEP - elapsed_time))
 
     timer = ui.timer(1.0, callback=lambda: ui.notify("The application is not ready yet"), active=False)
-
 
     ui.page_title("AI-Cares")
 
