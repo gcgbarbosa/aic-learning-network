@@ -20,7 +20,6 @@ class FeedbackComponent:
                     ui.button("Start a new interaction", on_click=lambda: self._new_interaction()).props(
                         'color="secondary"'
                     )
-            end_message.visible = False
 
             with ui.column().classes("mx-4 p-8 w-full border border-gray-300 rounded-sm gap-4") as feedback_form:
                 ui.label("Feedback Survey").classes("text-lg font-bold")
@@ -102,7 +101,7 @@ class FeedbackComponent:
 
                     self.prof_reason = (
                         ui.textarea(placeholder="Beschrijf je motivatie...")
-                        .props("outlined autogrow counter maxlength=600 rows=3")
+                        .props("outlined autogrow counter maxlength=1000 rows=3")
                         .classes("w-full")
                         .bind_value_to(self.result, "professional_reason")
                         .on_value_change(self._check_errors)
@@ -142,7 +141,7 @@ class FeedbackComponent:
 
                     self.ref_timing = (
                         ui.textarea(placeholder="Beschrijf het ideale moment of de signalen...")
-                        .props("outlined autogrow counter maxlength=600 rows=3")
+                        .props("outlined autogrow counter maxlength=1000 rows=3")
                         .classes("w-full")
                         .bind_value_to(self.result, "referral_timing")
                         .on_value_change(self._check_errors)
@@ -183,7 +182,7 @@ class FeedbackComponent:
 
                     self.seekers_reason = (
                         ui.textarea(placeholder="Leg je redenering uit...")
-                        .props("outlined autogrow counter maxlength=600 rows=3")
+                        .props("outlined autogrow counter maxlength=1000 rows=3")
                         .classes("w-full")
                         .bind_value_to(self.result, "seekers_reason")
                         .on_value_change(self._check_errors)
@@ -202,7 +201,7 @@ class FeedbackComponent:
                 )
                 self.other = (
                     ui.textarea(placeholder="Andere opmerkingen...")
-                    .props("outlined autogrow counter maxlength=600 rows=3")
+                    .props("outlined autogrow counter maxlength=1000 rows=3")
                     .classes("w-full lg:w-2/3")
                     .bind_value_to(self.result, "other_remarks")
                 )
@@ -213,7 +212,7 @@ class FeedbackComponent:
                 ).classes("font-semibold")
                 self.snippet = (
                     ui.textarea(placeholder="Plak hier een fragment en licht toe...")
-                    .props("outlined autogrow counter maxlength=1200 rows=5")
+                    .props("outlined autogrow counter maxlength=10000 rows=5")
                     .classes("w-full lg:w-2/3")
                     .bind_value_to(self.result, "chat_snippet")
                 )
@@ -221,7 +220,9 @@ class FeedbackComponent:
                 with ui.row().classes("gap-3 mt-2"):
                     ui.button("Verzend feedback", on_click=self._submit).classes("btn-primary")
 
+        end_message.visible = False
         feedback_component.visible = False
+
         self._feedback_component = feedback_component
 
         self._end_message = end_message
@@ -301,9 +302,13 @@ class FeedbackComponent:
 
     def show(self):
         self._feedback_component.visible = True
+        if self._flow_manager.is_finished():
+            self._feedback_form.visible = False
+            self._end_message.visible = True
 
     def hide(self):
         self._feedback_component.visible = False
+        self._end_message.visible = False
 
     def _new_interaction(self):
         ui.notify("Cleaning session")
