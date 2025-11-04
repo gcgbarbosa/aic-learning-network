@@ -1,3 +1,8 @@
+import os
+
+from loguru import logger
+from nicegui import app
+
 from src.chatbots.base_chatbot import BaseChabot
 from src.chatbots.factory import ChatbotFactory
 from src.chatbots.message_adapter import MessageAdapter
@@ -6,13 +11,10 @@ from src.models.chatbot_setting import ChatbotSettingsRecord
 from src.models.interaction_setting import InteractionSettingsRecord
 from src.models.message import MessageRecord
 from src.pocketbase_db import PocketBaseDB
-import os
-
-from loguru import logger
 
 
 class FlowManager:
-    def __init__(self, interaction_id: str | None = None):
+    def __init__(self):
         self._db = PocketBaseDB()
 
         DEFAULT_SETTING_ID = os.getenv("DEFAULT_SETTING_ID")
@@ -27,7 +29,20 @@ class FlowManager:
 
         self._chatbots = {id: ChatbotFactory.get("chatbot00000003") for id in self._chatbot_ids}
 
-        self._interaction_id = "ttvxe4qk4erlw4a"
+        self._chatbot_messages: dict[str, list[MessageRecord]] = {}
+
+        self.interaction_id = app.storage.user.get("interaction_id", None)
+
+        if self.interaction_id:
+            self.start_flow()
+        else:
+            self._interaction = None
+
+        logger.info(f"Initialized FlowManager with chatbots: {self._chatbot_ids}")
+
+    def start_flow(self):
+        if not self.interaction_id:
+            self.create_interaction("default", "default")
 
         self._all_messages = self.get_all_messages()
 
@@ -35,10 +50,23 @@ class FlowManager:
 
         self.initialize_chatbots()
 
-        logger.info(f"Initialized FlowManager with chatbots: {self._chatbot_ids}")
+        logger.info(f"Flow started for interaction ID '{self.interaction_id}'")
+
+    def get_elapsed_time(self):
+        if self._interaction is None:
+            return 0
+
+        return self._interaction.elapsed_time
+
+    def updated_elapsed_time(self, elapsed_time: int):
+        if not self.interaction_id:
+            raise ValueError("Interaction has not been initialized")
+
+        self._db.update_chatbot_interaction(self.interaction_id, elapsed_time=elapsed_time)
 
     def initialize_chatbots(self):
         self._interaction = self.get_interaction()
+
         self._interaction_settings, self._chatbot_settings_dict = self.get_interaction_and_chatbot_settings(
             self._interaction.interaction_settings_id
         )
@@ -67,13 +95,19 @@ class FlowManager:
         return self._chatbot_ids
 
     def get_interaction(self) -> ChatbotInteractionRecord:
-        return self._db.get_chatbot_interaction(self._interaction_id)
+        if not self.interaction_id:
+            raise ValueError("Interaction has not been initialized")
+
+        return self._db.get_chatbot_interaction(self.interaction_id)
 
     def get_default_settings_id(self) -> str:
         return self._default_setting_id
 
     def get_all_messages(self) -> list[MessageRecord]:
-        return self._db.list_messages_by_interaction(self._interaction_id)
+        if not self.interaction_id:
+            raise ValueError("Interaction has not been initialized")
+
+        return self._db.list_messages_by_interaction(self.interaction_id)
 
     def get_chatbot_01(self) -> tuple[str, BaseChabot, list[MessageRecord]]:
         chatbot = self._chatbots.get(self._chatbot_ids[0])
@@ -103,12 +137,16 @@ class FlowManager:
         return self._chatbot_ids[2], chatbot, messages
 
     def create_interaction(self, user_name: str, session_id: str) -> None:
-        interactions = self._db.list_chatbot_interactions_by_session(session_id=session_id)
+        # interactions = self._db.list_chatbot_interactions_by_session(session_id=session_id)
 
-        if len(interactions) > 0:
-            raise ValueError(f"An interaction for session_id '{session_id}' already exists.")
+        # if len(interactions) > 0:
+        #     raise ValueError(f"An interaction for session_id '{session_id}' already exists.")
 
-        self._db.create_chatbot_interaction(user_name, session_id)
+        interaction = self._db.create_chatbot_interaction(user_name, session_id, self._default_setting_id)
+
+        self.interaction_id = interaction.id
+
+        app.storage.user["interaction_id"] = interaction.id
 
     def list_settings(self) -> list[InteractionSettingsRecord]:
         return self._db.list_interaction_settings()
@@ -136,20 +174,28 @@ class FlowManager:
         return interaction_settings, chatbot_settings_dict
 
     def change_interaction_setting(self, interaction_settings_id: str):
-        self._db.update_chatbot_interaction(self._interaction_id, interaction_settings_id=interaction_settings_id)
+        if not self.interaction_id:
+            raise ValueError("Interaction has not been initialized")
 
+        self._db.update_chatbot_interaction(self.interaction_id, interaction_settings_id=interaction_settings_id)
         self.initialize_chatbots()
 
     def save_user_message(self, content: str) -> None:
+        if not self.interaction_id:
+            raise ValueError("Interaction has not been initialized")
+
         logger.debug(f"Saving user message: {content}")
 
-        self._db.insert_message(role="user", content=content, interaction_id=self._interaction_id)
+        self._db.insert_message(role="user", content=content, interaction_id=self.interaction_id)
 
     def save_assistant_message(self, content: str, chatbot_id: str) -> None:
+        if not self.interaction_id:
+            raise ValueError("Interaction has not been initialized")
+
         logger.debug(f"Saving assistant message for chatbot ID '{chatbot_id}': {content}")
 
         self._db.insert_message(
-            role="assistant", content=content, chatbot_id=chatbot_id, interaction_id=self._interaction_id
+            role="assistant", content=content, chatbot_id=chatbot_id, interaction_id=self.interaction_id
         )
 
     def create_interaction_settings(
@@ -162,8 +208,15 @@ class FlowManager:
         return setting
 
     def submit_user_feedback(self, feedback_string: str):
-        self._db.create_feedback(self._interaction_id, feedback_string)
-        self._db.update_chatbot_interaction(self._interaction_id, is_finished=True)
+        if not self.interaction_id:
+            raise ValueError("Interaction has not been initialized")
+
+        self._db.create_feedback(self.interaction_id, feedback_string)
+        self._db.update_chatbot_interaction(self.interaction_id, is_finished=True)
+
+    def clear_session(self):
+        # app.storage.browser["interaction_id"] = "kdfasdfasdf"
+        app.storage.user.clear()
 
 
 if __name__ == "__main__":

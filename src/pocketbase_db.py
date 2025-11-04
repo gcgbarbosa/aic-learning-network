@@ -9,6 +9,7 @@ from src.models import (
     MessageRecord,
     ChatbotSettingsRecord,
     InteractionSettingsRecord,
+    interaction_setting,
 )
 
 from typing import overload
@@ -52,12 +53,13 @@ class PocketBaseDB:
 
         return False
 
-    def create_chatbot_interaction(self, user_name: str, session_id: str) -> ChatbotInteractionRecord:
+    def create_chatbot_interaction(self, user_name: str, session_id: str, interaction_settings_id: str) -> ChatbotInteractionRecord:
         result = self.client.collection("chatbot_interactions").create(
             {
                 "elapsed_time": 0,
                 "user_name": user_name,
                 "session_id": session_id,
+                "interaction_settings_id": interaction_settings_id,
                 "is_finished": False,
             }
         )
