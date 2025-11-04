@@ -1,7 +1,7 @@
 import os
 
 from loguru import logger
-from nicegui import app
+from nicegui import app, ui
 
 from src.chatbots.base_chatbot import BaseChabot
 from src.chatbots.factory import ChatbotFactory
@@ -67,6 +67,11 @@ class FlowManager:
     def initialize_chatbots(self):
         self._interaction = self.get_interaction()
 
+        if not self._interaction:
+            self.clear_session()
+            ui.navigate.to("/")
+            return
+
         self._interaction_settings, self._chatbot_settings_dict = self.get_interaction_and_chatbot_settings(
             self._interaction.interaction_settings_id
         )
@@ -94,7 +99,7 @@ class FlowManager:
     def get_chatbot_ids(self) -> list[str]:
         return self._chatbot_ids
 
-    def get_interaction(self) -> ChatbotInteractionRecord:
+    def get_interaction(self) -> ChatbotInteractionRecord | None:
         if not self.interaction_id:
             raise ValueError("Interaction has not been initialized")
 
@@ -217,6 +222,9 @@ class FlowManager:
     def clear_session(self):
         # app.storage.browser["interaction_id"] = "kdfasdfasdf"
         app.storage.user.clear()
+
+    def is_finished(self) -> bool:
+        return self._interaction.is_finished if self._interaction else False
 
 
 if __name__ == "__main__":
