@@ -31,9 +31,16 @@ class FooterComponent:
 
         # self.prevent_new_line_on_enter()
 
-    @property
-    def element(self) -> Footer:
-        return self._element
+    def enable_chat(self) -> None:
+        self._btn_input_chat.enable()
+        self._txt_input_chat.enable()
+
+    def disable_chat(self) -> None:
+        self._btn_input_chat.disable()
+        self._txt_input_chat.disable()
+
+    def hide(self) -> None:
+        self._element.visible = False
 
     async def send_user_prompt(self):
         await self._chatbot_container.process_user_prompt(self._txt_input_chat, self._btn_input_chat)
