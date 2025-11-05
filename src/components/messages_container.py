@@ -16,6 +16,8 @@ ASSISTANT_AVATAR = "https://robohash.org/robot"
 
 class MessagesContainerComponent:
     def __init__(self, chatbot_name: str, agent: BaseChabot, messages: list[MessageRecord], fn):
+        self._extras = ["fenced-code-blocks", "tables", "target-blank-links"]
+
         with ui.scroll_area().classes("h-full border border-gray-300 rounded-sm") as scroll_area:
             with ui.element("div").classes("w-full pr-4") as message_container:
                 # hello, I am here to assist you
@@ -24,10 +26,10 @@ class MessagesContainerComponent:
                 for message in messages:
                     if message.role == "user":
                         with ui.chat_message(name="You", avatar=USER_AVATAR).props("sent"):
-                            ui.markdown(message.content)
+                            ui.markdown(message.content, extras=self._extras)
                     elif message.role == "assistant":
                         with ui.chat_message(name=chatbot_name, avatar=ASSISTANT_AVATAR):
-                            ui.markdown(message.content)
+                            ui.markdown(message.content, extras=self._extras)
 
         scroll_area.scroll_to(percent=100)
 
@@ -61,7 +63,7 @@ class MessagesContainerComponent:
                 first = True  # flag to track first streamed token
 
                 with assistant_response:
-                    content = ui.markdown("")
+                    content = ui.markdown("", extras=self._extras)
 
                     async for m in self._agent.stream_response(user_prompt):
                         if first:
