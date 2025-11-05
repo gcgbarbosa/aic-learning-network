@@ -12,7 +12,7 @@ class SessionModalComponent:
 
         with ui.dialog().props("persistent") as dialog:
             with ui.card().style("max-width: none").classes("p-10 pr-14"):
-                ui.label("Ik accepteerde de informed consent in de chat van de vergadering.")
+                ui.label("Ik stemde toe om deel te nemen aan dit rollenspel (informed consent)")
 
                 # confirm button
                 ui.button("Bevestigen", on_click=self.handle_confirm).props("color=secondary").classes("w-full")
