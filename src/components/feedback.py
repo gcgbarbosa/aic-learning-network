@@ -121,8 +121,16 @@ class FeedbackComponent:
                     ).classes("font-semibold")
 
                     self.best_ref = (
-                        ui.radio(options=["Chatbot 1", "Chatbot 2", "Chatbot 3", "weet niet"])
-                        .classes("w-full max-w-xl")
+                        ui.radio(
+                            options=[
+                                "Chatbot 1",
+                                "Chatbot 2",
+                                "Chatbot 3",
+                                "weet niet",
+                                "Doorverwijzing was niet nodig / Geen van de drie",
+                            ]
+                        )
+                        .classes("w-full")
                         .props("inline")
                         .bind_value_to(self.result, "best_referral")
                         .on_value_change(self._check_errors)
@@ -218,7 +226,9 @@ class FeedbackComponent:
                 )
 
                 with ui.row().classes("gap-3 mt-2"):
-                    ui.button("Verzend feedback", on_click=self._submit).classes("btn-primary")
+                    ui.button("Verzend feedback", on_click=self._submit)
+
+                    ui.button("RESET", on_click=self._new_interaction).props('color="red"')
 
         end_message.visible = False
         feedback_component.visible = False

@@ -1,6 +1,5 @@
 from loguru import logger
 from nicegui import ui
-from nicegui.elements.footer import Footer
 from nicegui.events import GenericEventArguments
 
 from src.components.chatbots_container import ChatbotsContainerComponent
@@ -11,7 +10,8 @@ class FooterComponent:
         with ui.footer().classes("bg-white") as footer:
             with ui.row().classes("items-center w-full max-w-3xl mx-auto  shadow-xl p-1 rounded-md"):
                 text = (
-                    ui.textarea(placeholder="Ask anything")
+                    # ask anything
+                    ui.textarea(placeholder="Vraag maar raak")
                     .props("outlined rows=4 maxlength=4000")
                     .classes("col-grow height-full")
                 )
