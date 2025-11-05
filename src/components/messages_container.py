@@ -15,22 +15,11 @@ ASSISTANT_AVATAR = "https://robohash.org/robot"
 
 
 class MessagesContainerComponent:
-    # messages = [
-    #     MessageRecord(
-    #         id="test", timestamp=time, interaction_id="", role="user", content="Hello, how are you?", chatbot_id=""
-    #     ),
-    #     MessageRecord(
-    #         id="test", timestamp=time, interaction_id="", role="assistant", content="Hello, how are you?", chatbot_id=""
-    #     ),
-    # ]
-
     def __init__(self, chatbot_name: str, agent: BaseChabot, messages: list[MessageRecord], fn):
-        # n = random.randint(5, 10)  # random integer from 1 to 10
-        # messages = self.messages[:n]
-
         with ui.scroll_area().classes("h-full border border-gray-300 rounded-sm") as scroll_area:
             with ui.element("div").classes("w-full pr-4") as message_container:
-                ui.chat_message("Hello, I am here to assist you!", name=chatbot_name, avatar=ASSISTANT_AVATAR)
+                # hello, I am here to assist you
+                ui.chat_message("Hallo, hoe kan ik je helpen?", name=chatbot_name, avatar=ASSISTANT_AVATAR)
 
                 for message in messages:
                     if message.role == "user":
@@ -50,9 +39,8 @@ class MessagesContainerComponent:
 
         self._fn = fn
 
-    async def add_message(self, user_prompt: str):  # txt_input_chat: Textarea, btn_input_chat: Button) -> None:
-        # message_content = txt_input_chat.value
-        name = "You"
+    async def add_message(self, user_prompt: str):
+        name = "U"
 
         with self._message_container:
             spinner = ui.spinner(size="lg")
