@@ -2,13 +2,17 @@ import asyncio
 from typing import AsyncIterator
 
 from loguru import logger
-from pydantic_ai import Agent
+from pydantic_ai import Agent, RunContext
 from pydantic_ai.messages import ModelMessage
 from pydantic_ai.models.openai import OpenAIChatModel
 
 from src.chatbots.base_chatbot import BaseChabot
 from src.chatbots.factory import ChatbotFactory
 import os
+import logfire
+
+logfire.configure(token="pylf_v1_us_kfz3XF4tP7QmPQ6jdDz9rFSw4MSZ6yXGlnwYzWrgWQJT")
+logfire.instrument_pydantic_ai()
 
 LLM_RESPONSE_LANG = os.environ.get("LLM_RESPONSE_LANG", "English")
 
@@ -26,9 +30,22 @@ class Chatbot(BaseChabot):
 
         self.agent = Agent(self.model, system_prompt=self._system_prompt)
 
+        self.agent.instructions(self.add_instructions)
+
         self.history = []
 
         logger.info("ZeroShotChatbot initialized")
+
+        self._instuctions = (
+            "<INSTRUCTION>\n"
+            "If you provide links, ALWAYS use markdown format.\n"
+            "For example [descriptive_text](https://link.com/)\n"
+            "</INSTRUCTION>"
+        )
+
+    def add_instructions(self, ctx: RunContext[None]) -> str:
+        # def add_instructions(self) -> str:
+        return self._instuctions
 
     async def stream_response(self, prompt: str) -> AsyncIterator[str]:
         message_history = self.history or None
@@ -55,7 +72,9 @@ class Chatbot(BaseChabot):
 
     def set_system_prompt(self, system_prompt: str):
         self._system_prompt = system_prompt
+
         self.agent = Agent(self.model, system_prompt=self._system_prompt)
+        self.agent.instructions(self.add_instructions)
 
 
 if __name__ == "__main__":
