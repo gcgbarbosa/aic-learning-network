@@ -20,7 +20,7 @@ LLM_RESPONSE_LANG = os.environ.get("LLM_RESPONSE_LANG", "English")
 @ChatbotFactory.register("chatbot00000003")
 class Chatbot(BaseChabot):
     def __init__(self):
-        self.model = OpenAIChatModel("gpt-4o-mini")
+        self.model = OpenAIChatModel("gpt-4o")
 
         self._system_prompt = (
             "You're a helpful assistant. "
