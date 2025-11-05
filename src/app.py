@@ -1,7 +1,7 @@
 """Entrypoint"""
 
 from loguru import logger
-from nicegui import ui
+from nicegui import ui, app
 
 from components import (
     ChatbotsContainerComponent,
