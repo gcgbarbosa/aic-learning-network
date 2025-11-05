@@ -12,19 +12,18 @@ class SessionModalComponent:
 
         with ui.dialog().props("persistent") as dialog:
             with ui.card().style("max-width: none").classes("p-10 pr-14"):
-                ui.label("Pleace confirm that you accept the terms before proceeding")
+                ui.label("Ik accepteerde de informed consent in de chat van de vergadering.")
 
-                ui.button("Confirm", on_click=self.handle_confirm).props("color=secondary").classes("w-full")
+                # confirm button
+                ui.button("Bevestigen", on_click=self.handle_confirm).props("color=secondary").classes("w-full")
 
         dialog.open()
         self.dialog = dialog
 
     def handle_confirm(self) -> None:
-        ui.notify("New session started", color="info")
+        # new session started
+        ui.notify("Nieuwe sessie gestart", color="info")
 
         self._fm.start_flow()
 
         self.dialog.close()
-
-
-        # return
