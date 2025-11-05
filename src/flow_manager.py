@@ -145,7 +145,7 @@ class FlowManager:
         # interactions = self._db.list_chatbot_interactions_by_session(session_id=session_id)
 
         # if len(interactions) > 0:
-        #     raise ValueError(f"An interaction for session_id '{session_id}' already exists.")
+        session_id = app.storage.browser.get("id", "UNK_BROWSER_ID")
 
         interaction = self._db.create_chatbot_interaction(user_name, session_id, self._default_setting_id)
 
